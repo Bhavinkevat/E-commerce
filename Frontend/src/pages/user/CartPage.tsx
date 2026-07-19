@@ -31,7 +31,18 @@ function CartPage() {
           <tbody>
             {items.map((item) => (
               <tr key={item.productId}>
-                <td>{item.product?.name}</td>
+                <td>
+                  <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                    <div className="table-thumb">
+                      {item.product?.image_url ? (
+                        <img src={item.product.image_url} alt={item.product.name} />
+                      ) : (
+                        <span className="table-thumb-placeholder">No image</span>
+                      )}
+                    </div>
+                    <span>{item.product?.name}</span>
+                  </div>
+                </td>
                 <td>{item.quantity}</td>
                 <td>₹{((item.product?.price || 0) * item.quantity).toLocaleString("en-IN")}</td>
                 <td>

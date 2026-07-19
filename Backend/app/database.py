@@ -84,3 +84,22 @@ def ensure_product_image_column() -> None:
                 text("ALTER TABLE products ADD COLUMN image_url TEXT NULL AFTER status")
             )
             connection.execute(text("UPDATE products SET image_url = '' WHERE image_url IS NULL"))
+
+
+def ensure_user_profile_columns() -> None:
+    inspector = inspect(engine)
+    if not inspector.has_table("users"):
+        return
+
+    columns = [column["name"] for column in inspector.get_columns("users")]
+    new_cols = {
+        "first_name": "ALTER TABLE users ADD COLUMN first_name VARCHAR(120) NULL AFTER name",
+        "last_name": "ALTER TABLE users ADD COLUMN last_name VARCHAR(120) NULL AFTER first_name",
+        "phone": "ALTER TABLE users ADD COLUMN phone VARCHAR(20) NULL AFTER email",
+        "address": "ALTER TABLE users ADD COLUMN address VARCHAR(255) NULL AFTER phone",
+    }
+
+    for col_name, sql in new_cols.items():
+        if col_name not in columns:
+            with engine.begin() as connection:
+                connection.execute(text(sql))

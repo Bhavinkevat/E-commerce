@@ -7,6 +7,7 @@ from app.database import (
     check_database_connection,
     ensure_product_image_column,
     ensure_user_role_column,
+    ensure_user_profile_columns,
 )
 from app.routers.admin import router as admin_router
 from app.routers.cart import router as cart_router
@@ -32,6 +33,7 @@ def startup_event():
     Base.metadata.create_all(bind=engine)
     ensure_user_role_column()
     ensure_product_image_column()
+    ensure_user_profile_columns()
 
 
 app.include_router(user_router)

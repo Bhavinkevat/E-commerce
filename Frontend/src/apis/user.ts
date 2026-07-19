@@ -1,5 +1,6 @@
 import { API_URL } from "./auth";
 import type { OrderSummary, Product } from "../types/catalog";
+import type { User } from "../types/auth";
 
 export type CartItem = {
   id: number;
@@ -146,4 +147,19 @@ export async function toggleWishlist(productId: number) {
 export async function getOrderHistory() {
   const orders = await requestJson<any[]>("/orders");
   return orders.map(mapOrder);
+}
+
+export async function updateProfile(payload: {
+  name?: string;
+  first_name?: string;
+  last_name?: string;
+  email?: string;
+  phone?: string;
+  address?: string;
+  password?: string;
+}): Promise<User> {
+  return requestJson<User>("/auth/profile", {
+    method: "PUT",
+    body: JSON.stringify(payload),
+  });
 }

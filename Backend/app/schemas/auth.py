@@ -40,7 +40,11 @@ class UserRead(BaseModel):
 
     id: int
     name: str
+    first_name: str | None = None
+    last_name: str | None = None
     email: EmailStr
+    phone: str | None = None
+    address: str | None = None
     role: str
     created_at: datetime
 

@@ -20,6 +20,7 @@ type AuthContextValue = {
   signupAsUser: (payload: SignupPayload) => Promise<void>;
   logout: () => void;
   clearFeedback: () => void;
+  updateUser: (user: User) => void;
 };
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -95,6 +96,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setMessage("");
   };
 
+  const updateUser = (updatedUser: User) => {
+    setUser(updatedUser);
+  };
+
   const value: AuthContextValue = {
     user,
     token,
@@ -106,6 +111,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     signupAsUser,
     logout,
     clearFeedback,
+    updateUser,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

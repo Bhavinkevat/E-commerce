@@ -1,13 +1,26 @@
 import { useEffect, useState } from "react";
-import { getWishlist } from "../../apis/user";
+import { Heart, ShoppingCart, CreditCard } from "lucide-react";
+import { getWishlist, toggleWishlist, addToCart } from "../../apis/user";
 import type { Product } from "../../types/catalog";
+import Button from "../../components/common/Button";
+import { useNavigate } from "react-router-dom";
 
 function WishlistPage() {
   const [items, setItems] = useState<Product[]>([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
     void getWishlist().then(setItems);
   }, []);
+
+  const handleRemoveFromWishlist = async (productId: number) => {
+    try {
+      const updatedWishlist = await toggleWishlist(productId);
+      setItems(updatedWishlist);
+    } catch (error) {
+      console.error("Failed to remove from wishlist:", error);
+    }
+  };
 
   return (
     <section className="panel-stack">
@@ -18,14 +31,74 @@ function WishlistPage() {
         </div>
       </header>
 
-      <div className="catalog-grid">
-        {items.map((item) => (
-          <article key={item.id} className="product-card">
-            <h3>{item.name}</h3>
-            <strong>₹{item.price.toLocaleString("en-IN")}</strong>
-          </article>
-        ))}
-      </div>
+      {items.length === 0 ? (
+        <div className="info-card">
+          <span>Your wishlist is empty.</span>
+        </div>
+      ) : (
+        <div className="catalog-grid">
+          {items.map((item) => (
+            <article key={item.id} className="product-card">
+              <div className="product-card-image" style={{ position: "relative" }}>
+                {item.image_url ? (
+                  <img src={item.image_url} alt={item.name} />
+                ) : (
+                  <div className="product-card-image-placeholder">No image</div>
+                )}
+                <button
+                  type="button"
+                  className="wishlist-btn-floating active"
+                  onClick={() => handleRemoveFromWishlist(item.id)}
+                  aria-label="Remove from Wishlist"
+                >
+                  <Heart
+                    size={18}
+                    fill="#ae4a34"
+                    stroke="#ae4a34"
+                  />
+                </button>
+              </div>
+
+              <div className="product-card-body">
+                <p className="product-category">{item.category}</p>
+                <h3>{item.name}</h3>
+                <p className="summary compact">{item.description}</p>
+              </div>
+
+              <div className="product-meta">
+                <strong>₹{item.price.toLocaleString("en-IN")}</strong>
+                <span>Stock: {item.stock}</span>
+                <span>Rating: {item.rating}</span>
+              </div>
+
+              <div className="row-actions product-card-actions">
+                <Button
+                  type="button"
+                  icon={<ShoppingCart size={16} />}
+                  onClick={async () => {
+                    await addToCart(item.id);
+                  }}
+                  style={{ width: "100%" }}
+                >
+                  Add to Cart
+                </Button>
+                <Button
+                  type="button"
+                  variant="dark"
+                  icon={<CreditCard size={16} />}
+                  onClick={async () => {
+                    await addToCart(item.id);
+                    navigate("/app/cart");
+                  }}
+                  style={{ width: "100%" }}
+                >
+                  Buy Now
+                </Button>
+              </div>
+            </article>
+          ))}
+        </div>
+      )}
     </section>
   );
 }

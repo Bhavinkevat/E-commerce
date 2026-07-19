@@ -3,7 +3,11 @@ export type AuthMode = "login" | "signup";
 export interface User {
   id: number;
   name: string;
+  first_name?: string;
+  last_name?: string;
   email: string;
+  phone?: string;
+  address?: string;
   role: "admin" | "user";
   created_at: string;
 }
