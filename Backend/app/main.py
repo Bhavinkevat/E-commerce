@@ -8,6 +8,7 @@ from app.database import (
     ensure_product_image_column,
     ensure_user_role_column,
     ensure_user_profile_columns,
+    ensure_user_otp_columns,
 )
 from app.routers.admin import router as admin_router
 from app.routers.cart import router as cart_router
@@ -34,6 +35,7 @@ def startup_event():
     ensure_user_role_column()
     ensure_product_image_column()
     ensure_user_profile_columns()
+    ensure_user_otp_columns()
 
 
 app.include_router(user_router)

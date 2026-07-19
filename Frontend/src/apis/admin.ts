@@ -67,3 +67,18 @@ export async function listCustomers() {
 export async function getAdminAnalytics() {
   return requestJson<Array<{ label: string; value: string }>>("/admin/analytics");
 }
+
+export async function updateOrderStatus(orderId: number, status: string): Promise<OrderSummary> {
+  const order = await requestJson<any>(`/admin/orders/${orderId}/status`, {
+    method: "PUT",
+    body: JSON.stringify({ status }),
+  });
+  return {
+    id: order.id,
+    orderNo: order.order_no,
+    customer: order.customer_name || `User #${order.user_id}`,
+    total: order.total,
+    status: order.status,
+    date: new Date(order.created_at).toISOString().slice(0, 10),
+  };
+}

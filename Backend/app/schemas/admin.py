@@ -22,3 +22,8 @@ class CustomerSummary(BaseModel):
     orders: int
     spent: int
     status: str
+
+
+class UpdateOrderStatusPayload(BaseModel):
+    status: str
+

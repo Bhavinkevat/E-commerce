@@ -33,3 +33,8 @@ export interface ForgotPasswordPayload {
   new_password: string;
   confirm_password: string;
 }
+
+export interface ForgotPasswordResetPayload extends ForgotPasswordPayload {
+  otp: string;
+}
+

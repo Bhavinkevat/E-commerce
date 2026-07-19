@@ -11,6 +11,13 @@ class Settings(BaseSettings):
     secret_key: str = "change-this-to-a-long-random-secret"
     access_token_expire_minutes: int = 1440
 
+    smtp_host: str = "smtp.gmail.com"
+    smtp_port: int = 587
+    smtp_user: str = ""
+    smtp_password: str = ""
+    smtp_from: str = ""
+
+
     model_config = SettingsConfigDict(
         env_file=".env",
         env_file_encoding="utf-8",

@@ -30,3 +30,5 @@ class OrderRead(BaseModel):
 
 class CheckoutPayload(BaseModel):
     shipping_address: str
+    product_id: int | None = None
+

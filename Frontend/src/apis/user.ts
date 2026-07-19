@@ -163,3 +163,15 @@ export async function updateProfile(payload: {
     body: JSON.stringify(payload),
   });
 }
+
+export async function checkout(shippingAddress: string, productId?: number): Promise<OrderSummary> {
+  const payload = {
+    shipping_address: shippingAddress,
+    product_id: productId,
+  };
+  const order = await requestJson<any>("/orders/checkout", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+  return mapOrder(order);
+}

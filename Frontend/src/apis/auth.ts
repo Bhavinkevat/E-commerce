@@ -1,6 +1,7 @@
 import type {
   AuthResponse,
   ForgotPasswordPayload,
+  ForgotPasswordResetPayload,
   LoginPayload,
   SignupPayload,
   User,
@@ -51,6 +52,43 @@ export function forgotPassword(
   });
 }
 
+export function requestPasswordResetOtp(
+  email: string
+): Promise<{ message: string }> {
+  return requestJson<{ message: string }>("/auth/forgot-password/request", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ email }),
+  });
+}
+
+export function verifyPasswordResetOtp(
+  email: string,
+  otp: string
+): Promise<{ message: string }> {
+  return requestJson<{ message: string }>("/auth/forgot-password/verify", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ email, otp }),
+  });
+}
+
+export function resetPasswordWithOtp(
+  payload: ForgotPasswordResetPayload
+): Promise<{ message: string }> {
+  return requestJson<{ message: string }>("/auth/forgot-password/reset", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(payload),
+  });
+}
+
 export function getCurrentUser(token: string): Promise<User> {
   return requestJson<User>("/auth/me", {
     headers: {
@@ -60,4 +98,5 @@ export function getCurrentUser(token: string): Promise<User> {
 }
 
 export { API_URL };
+
 

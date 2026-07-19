@@ -4,9 +4,11 @@ import { updateProfile } from "../../apis/user";
 import TextField from "../../components/common/TextField";
 import Button from "../../components/common/Button";
 import { User as UserIcon, Mail, Phone, MapPin, Lock, Check } from "lucide-react";
+import { useToast } from "../../context/ToastContext";
 
 function ProfilePage() {
   const { user, updateUser } = useAuth();
+  const { showToast } = useToast();
   const [formData, setFormData] = useState({
     name: user?.name || "",
     first_name: user?.first_name || "",
@@ -56,6 +58,7 @@ function ProfilePage() {
 
       const updatedUser = await updateProfile(payload);
       updateUser(updatedUser);
+      showToast("Profile updated successfully!", "success");
       setSuccessMessage("Profile updated successfully!");
       setFormData(prev => ({ ...prev, password: "" }));
     } catch (err) {

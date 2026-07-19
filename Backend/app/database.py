@@ -103,3 +103,21 @@ def ensure_user_profile_columns() -> None:
         if col_name not in columns:
             with engine.begin() as connection:
                 connection.execute(text(sql))
+
+
+def ensure_user_otp_columns() -> None:
+    inspector = inspect(engine)
+    if not inspector.has_table("users"):
+        return
+
+    columns = [column["name"] for column in inspector.get_columns("users")]
+    new_cols = {
+        "reset_otp": "ALTER TABLE users ADD COLUMN reset_otp VARCHAR(6) NULL AFTER role",
+        "reset_otp_expires_at": "ALTER TABLE users ADD COLUMN reset_otp_expires_at DATETIME NULL AFTER reset_otp",
+    }
+
+    for col_name, sql in new_cols.items():
+        if col_name not in columns:
+            with engine.begin() as connection:
+                connection.execute(text(sql))
+

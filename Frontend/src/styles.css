@@ -884,4 +884,303 @@ h1 {
   }
 }
 
+/* Checkout Stepper & Flow Styles */
+.checkout-stepper {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  position: relative;
+}
+
+.checkout-stepper::before {
+  content: '';
+  position: absolute;
+  top: 16px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: #edf2ec;
+  z-index: 1;
+}
+
+.checkout-stepper-progress {
+  position: absolute;
+  top: 16px;
+  left: 0;
+  height: 2px;
+  background: #1f6f59;
+  z-index: 2;
+  transition: width 0.3s ease;
+}
+
+.stepper-step {
+  position: relative;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  flex: 1;
+}
+
+.step-bubble {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #ffffff;
+  border: 2px solid #cfd8d0;
+  display: grid;
+  place-items: center;
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: #7a877f;
+  transition: all 0.3s ease;
+}
+
+.stepper-step.active .step-bubble {
+  border-color: #1f6f59;
+  background: #1f6f59;
+  color: #ffffff;
+  box-shadow: 0 0 0 4px rgba(31, 111, 89, 0.15);
+}
+
+.stepper-step.completed .step-bubble {
+  border-color: #1f6f59;
+  background: #ffffff;
+  color: #1f6f59;
+}
+
+.step-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #7a877f;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.stepper-step.active .step-label,
+.stepper-step.completed .step-label {
+  color: #18211d;
+}
+
+/* Payment Methods Selection */
+.payment-methods-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.payment-method-card {
+  border: 1px solid #cfd8d0;
+  border-radius: 8px;
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: #ffffff;
+}
+
+.payment-method-card:hover {
+  border-color: #1f6f59;
+  background: rgba(31, 111, 89, 0.02);
+}
+
+.payment-method-card.selected {
+  border-color: #1f6f59;
+  background: rgba(31, 111, 89, 0.06);
+  box-shadow: 0 4px 12px rgba(31, 111, 89, 0.08);
+}
+
+.payment-method-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 6px;
+  background: #edf2ec;
+  display: grid;
+  place-items: center;
+  color: #1f6f59;
+}
+
+.payment-method-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.payment-method-title {
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: #18211d;
+}
+
+.payment-method-desc {
+  font-size: 0.82rem;
+  color: #7a877f;
+}
+
+/* Buy Success Button Modifiers */
+.mini-button.success {
+  border-color: rgba(31, 111, 89, 0.25);
+  color: #1f6f59;
+  background: rgba(31, 111, 89, 0.08);
+}
+
+.mini-button.success:hover {
+  background: rgba(31, 111, 89, 0.16);
+  border-color: #1f6f59;
+}
+
+.checkout-details-card {
+  border: 1px solid #e6ece5;
+  border-radius: 8px;
+  padding: 16px;
+  background: #f8faf7;
+  margin-top: 14px;
+}
+
+.checkout-detail-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  font-size: 0.9rem;
+}
+
+.checkout-detail-row:last-child {
+  margin-bottom: 0;
+  padding-top: 8px;
+  border-top: 1px solid #e6ece5;
+  font-weight: 700;
+  font-size: 1rem;
+}
+
+.checkout-success-view {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 24px 12px;
+}
+
+.success-circle {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: rgba(31, 111, 89, 0.1);
+  color: #1f6f59;
+  display: grid;
+  place-items: center;
+  margin-bottom: 16px;
+}
+
+/* Toast Notifications Container */
+.toast-container {
+  position: fixed;
+  top: 24px;
+  right: 24px;
+  z-index: 9999;
+  display: grid;
+  gap: 10px;
+  pointer-events: none;
+}
+
+/* Toast Message Cards */
+.toast-card {
+  pointer-events: auto;
+  min-width: 320px;
+  max-width: 420px;
+  padding: 14px 18px;
+  border-radius: 8px;
+  background: #ffffff;
+  border: 1px solid #d9dfd8;
+  box-shadow: 0 12px 36px rgba(23, 33, 29, 0.1);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  animation: toast-slide-in 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  position: relative;
+  overflow: hidden;
+}
+
+@keyframes toast-slide-in {
+  from {
+    transform: translateX(120%) scale(0.95);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0) scale(1);
+    opacity: 1;
+  }
+}
+
+.toast-card.toast-success {
+  border-left: 4px solid #1f6f59;
+}
+.toast-card.toast-error {
+  border-left: 4px solid #ae4a34;
+}
+.toast-card.toast-info {
+  border-left: 4px solid #3b82f6;
+}
+
+.toast-icon {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+}
+.toast-icon.success { color: #1f6f59; }
+.toast-icon.error { color: #ae4a34; }
+.toast-icon.info { color: #3b82f6; }
+
+.toast-message {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #18211d;
+  flex-grow: 1;
+  line-height: 1.4;
+}
+
+.toast-close {
+  border: 0;
+  background: transparent;
+  color: #7a877f;
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  transition: color 0.15s ease;
+}
+
+.toast-close:hover {
+  color: #18211d;
+}
+
+/* Progress Bar on Toast */
+.toast-progress {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 3px;
+  background: #edf2ec;
+  width: 100%;
+}
+
+.toast-progress-bar {
+  height: 100%;
+  width: 100%;
+  animation: toast-progress-anim 4000ms linear forwards;
+}
+
+.toast-success .toast-progress-bar { background: #1f6f59; }
+.toast-error .toast-progress-bar { background: #ae4a34; }
+.toast-info .toast-progress-bar { background: #3b82f6; }
+
+@keyframes toast-progress-anim {
+  from { width: 100%; }
+  to { width: 0%; }
+}
+
+
 

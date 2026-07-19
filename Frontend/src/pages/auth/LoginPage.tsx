@@ -1,16 +1,23 @@
-import { ArrowRight, Lock, Mail, Shield } from "lucide-react";
+import { ArrowRight, Lock, Mail, Shield, KeyRound } from "lucide-react";
 import { useState, type FormEvent } from "react";
 import { Link } from "react-router-dom";
-import { forgotPassword } from "../../apis/auth";
+import { requestPasswordResetOtp, verifyPasswordResetOtp, resetPasswordWithOtp } from "../../apis/auth";
 import Button from "../../components/common/Button";
 import TextField from "../../components/common/TextField";
 import { useAuth } from "../../context/AuthContext";
+import { useToast } from "../../context/ToastContext";
 
 function LoginPage() {
   const { loginAsUser, submitting, error, message, clearFeedback } = useAuth();
+  const { showToast } = useToast();
+  
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  
+  // Forgot Password / OTP states
   const [showForgotPassword, setShowForgotPassword] = useState(false);
+  const [otpStep, setOtpStep] = useState<1 | 2 | 3>(1); // 1 = Request OTP, 2 = Verify OTP, 3 = Reset Password
+  const [otp, setOtp] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [resetSubmitting, setResetSubmitting] = useState(false);
@@ -28,6 +35,8 @@ function LoginPage() {
     setPassword("");
     setNewPassword("");
     setConfirmPassword("");
+    setOtp("");
+    setOtpStep(1);
     setShowForgotPassword(true);
   };
 
@@ -36,34 +45,78 @@ function LoginPage() {
     clearResetFeedback();
     setNewPassword("");
     setConfirmPassword("");
+    setOtp("");
+    setOtpStep(1);
     setShowForgotPassword(false);
   };
 
-  const handleResetPassword = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
+  const handleRequestOtp = async () => {
+    if (!email.trim()) {
+      setResetError("Email is required");
+      return;
+    }
+    setResetSubmitting(true);
     clearResetFeedback();
+    try {
+      const response = await requestPasswordResetOtp(email);
+      setResetMessage(response.message);
+      showToast("OTP sent to your email successfully!", "success");
+      setOtpStep(2);
+    } catch (err) {
+      setResetError(err instanceof Error ? err.message : "Failed to request OTP");
+      showToast(err instanceof Error ? err.message : "Failed to request OTP", "error");
+    } finally {
+      setResetSubmitting(false);
+    }
+  };
 
+  const handleVerifyOtp = async () => {
+    if (!otp.trim()) {
+      setResetError("OTP code is required");
+      return;
+    }
+    setResetSubmitting(true);
+    clearResetFeedback();
+    try {
+      const response = await verifyPasswordResetOtp(email, otp);
+      setResetMessage(response.message);
+      showToast("OTP verified successfully!", "success");
+      setOtpStep(3);
+    } catch (err) {
+      setResetError(err instanceof Error ? err.message : "Invalid OTP code");
+      showToast(err instanceof Error ? err.message : "Invalid OTP code", "error");
+    } finally {
+      setResetSubmitting(false);
+    }
+  };
+
+  const handleResetPassword = async () => {
     if (newPassword !== confirmPassword) {
       setResetError("Passwords do not match");
       return;
     }
-
     setResetSubmitting(true);
+    clearResetFeedback();
 
     try {
-      const response = await forgotPassword({
+      const response = await resetPasswordWithOtp({
         email,
+        otp,
         new_password: newPassword,
         confirm_password: confirmPassword,
       });
       setResetMessage(response.message);
+      showToast("Password reset successfully!", "success");
       setNewPassword("");
       setConfirmPassword("");
+      setOtp("");
+      setOtpStep(1);
       setTimeout(() => {
         switchToLogin();
       }, 1500);
     } catch (err) {
       setResetError(err instanceof Error ? err.message : "Request failed");
+      showToast(err instanceof Error ? err.message : "Failed to reset password", "error");
     } finally {
       setResetSubmitting(false);
     }
@@ -84,7 +137,11 @@ function LoginPage() {
           <h1>{showForgotPassword ? "Reset Password" : "Login"}</h1>
           <p className="summary">
             {showForgotPassword
-              ? "Apna email aur naya password enter karo. Password reset hone ke baad login kar sakte ho."
+              ? otpStep === 1 
+                ? "Enter your email address to receive a verification OTP code."
+                : otpStep === 2
+                  ? "Enter the OTP code received on your email to verify."
+                  : "Enter your new password to complete the reset process."
               : "Role detect hoga aur usi hisaab se Admin Panel ya User Panel khulega."}
           </p>
           <div className="feature-list">
@@ -112,11 +169,17 @@ function LoginPage() {
           <form
             className="auth-form"
             onSubmit={(event) => {
+              event.preventDefault();
               if (showForgotPassword) {
-                void handleResetPassword(event);
+                if (otpStep === 1) {
+                  void handleRequestOtp();
+                } else if (otpStep === 2) {
+                  void handleVerifyOtp();
+                } else {
+                  void handleResetPassword();
+                }
                 return;
               }
-              event.preventDefault();
               loginAsUser({ email, password });
             }}
           >
@@ -124,6 +187,7 @@ function LoginPage() {
               label="Email"
               type="email"
               value={email}
+              disabled={showForgotPassword && (otpStep === 2 || otpStep === 3)}
               onChange={(event) => {
                 setEmail(event.target.value);
                 clearFeedback();
@@ -135,36 +199,55 @@ function LoginPage() {
             />
 
             {showForgotPassword ? (
-              <>
+              otpStep === 1 ? (
+                null
+              ) : otpStep === 2 ? (
                 <TextField
-                  label="New Password"
-                  type="password"
-                  value={newPassword}
+                  label="Verification OTP"
+                  type="text"
+                  value={otp}
                   onChange={(event) => {
-                    setNewPassword(event.target.value);
+                    setOtp(event.target.value);
                     clearResetFeedback();
                   }}
-                  placeholder="Enter new password"
-                  icon={<Lock size={18} />}
-                  showPasswordToggle
+                  placeholder="Enter 6-digit OTP"
+                  icon={<KeyRound size={18} />}
                   required
-                  minLength={6}
+                  maxLength={6}
                 />
-                <TextField
-                  label="Confirm New Password"
-                  type="password"
-                  value={confirmPassword}
-                  onChange={(event) => {
-                    setConfirmPassword(event.target.value);
-                    clearResetFeedback();
-                  }}
-                  placeholder="Confirm new password"
-                  icon={<Lock size={18} />}
-                  showPasswordToggle
-                  required
-                  minLength={6}
-                />
-              </>
+              ) : (
+                <>
+                  <TextField
+                    label="New Password"
+                    type="password"
+                    value={newPassword}
+                    onChange={(event) => {
+                      setNewPassword(event.target.value);
+                      clearResetFeedback();
+                    }}
+                    placeholder="Enter new password"
+                    icon={<Lock size={18} />}
+                    showPasswordToggle
+                    required
+                    minLength={6}
+                  />
+                  <TextField
+                    label="Confirm New Password"
+                    type="password"
+                    value={confirmPassword}
+                    onChange={(event) => {
+                      setNewPassword(newPassword); // keep newPassword in state
+                      setConfirmPassword(event.target.value);
+                      clearResetFeedback();
+                    }}
+                    placeholder="Confirm new password"
+                    icon={<Lock size={18} />}
+                    showPasswordToggle
+                    required
+                    minLength={6}
+                  />
+                </>
+              )
             ) : (
               <>
                 <TextField
@@ -200,7 +283,11 @@ function LoginPage() {
               {isSubmitting
                 ? "Please wait..."
                 : showForgotPassword
-                  ? "Reset Password"
+                  ? otpStep === 1 
+                    ? "Send Reset OTP" 
+                    : otpStep === 2 
+                      ? "Verify OTP" 
+                      : "Reset Password"
                   : "Login"}
             </Button>
 

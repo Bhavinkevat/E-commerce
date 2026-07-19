@@ -4,21 +4,24 @@ import { getWishlist, toggleWishlist, addToCart } from "../../apis/user";
 import type { Product } from "../../types/catalog";
 import Button from "../../components/common/Button";
 import { useNavigate } from "react-router-dom";
+import { useToast } from "../../context/ToastContext";
 
 function WishlistPage() {
   const [items, setItems] = useState<Product[]>([]);
   const navigate = useNavigate();
+  const { showToast } = useToast();
 
   useEffect(() => {
     void getWishlist().then(setItems);
   }, []);
 
-  const handleRemoveFromWishlist = async (productId: number) => {
+  const handleRemoveFromWishlist = async (productId: number, productName: string) => {
     try {
       const updatedWishlist = await toggleWishlist(productId);
       setItems(updatedWishlist);
+      showToast(`${productName} removed from wishlist.`, "success");
     } catch (error) {
-      console.error("Failed to remove from wishlist:", error);
+      showToast("Failed to remove item from wishlist.", "error");
     }
   };
 
@@ -48,7 +51,7 @@ function WishlistPage() {
                 <button
                   type="button"
                   className="wishlist-btn-floating active"
-                  onClick={() => handleRemoveFromWishlist(item.id)}
+                  onClick={() => handleRemoveFromWishlist(item.id, item.name)}
                   aria-label="Remove from Wishlist"
                 >
                   <Heart
@@ -77,6 +80,7 @@ function WishlistPage() {
                   icon={<ShoppingCart size={16} />}
                   onClick={async () => {
                     await addToCart(item.id);
+                    showToast(`${item.name} added to cart!`, "success");
                   }}
                   style={{ width: "100%" }}
                 >
@@ -88,6 +92,7 @@ function WishlistPage() {
                   icon={<CreditCard size={16} />}
                   onClick={async () => {
                     await addToCart(item.id);
+                    showToast(`${item.name} added to cart. Proceeding to checkout.`, "success");
                     navigate("/app/cart");
                   }}
                   style={{ width: "100%" }}

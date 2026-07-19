@@ -19,7 +19,7 @@ def read_orders(current_user: User = Depends(get_current_user), db: Session = De
 
 @router.post("/checkout", response_model=OrderRead)
 def checkout(payload: CheckoutPayload, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
-    order = create_order_from_cart(db, current_user.id, payload.shipping_address)
+    order = create_order_from_cart(db, current_user.id, payload.shipping_address, payload.product_id)
     if not order:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Cart is empty")
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Cart is empty or product not in cart")
     return attach_order_items(db, [order])[0]

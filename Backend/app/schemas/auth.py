@@ -35,6 +35,36 @@ class ForgotPassword(BaseModel):
         return self
 
 
+class ForgotPasswordRequest(BaseModel):
+    email: EmailStr
+
+
+class ForgotPasswordVerify(BaseModel):
+    email: EmailStr
+    otp: str
+
+
+class ForgotPasswordReset(BaseModel):
+    email: EmailStr
+    otp: str
+    new_password: str
+    confirm_password: str
+
+    @field_validator("new_password")
+    @classmethod
+    def validate_new_password(cls, value: str) -> str:
+        if len(value) < 6:
+            raise ValueError("Password must be at least 6 characters")
+        return value
+
+    @model_validator(mode="after")
+    def passwords_match(self):
+        if self.new_password != self.confirm_password:
+            raise ValueError("Passwords do not match")
+        return self
+
+
+
 class UserRead(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 

@@ -17,8 +17,11 @@ def list_orders_for_admin(db: Session) -> list[Order]:
     return db.query(Order).order_by(Order.id.desc()).all()
 
 
-def create_order_from_cart(db: Session, user_id: int, shipping_address: str) -> Order | None:
-    cart_items = db.query(CartItem).filter(CartItem.user_id == user_id).all()
+def create_order_from_cart(db: Session, user_id: int, shipping_address: str, product_id: int | None = None) -> Order | None:
+    query = db.query(CartItem).filter(CartItem.user_id == user_id)
+    if product_id is not None:
+        query = query.filter(CartItem.product_id == product_id)
+    cart_items = query.all()
     if not cart_items:
         return None
 
@@ -59,7 +62,13 @@ def create_order_from_cart(db: Session, user_id: int, shipping_address: str) -> 
             product.stock = max(product.stock - cart_item.quantity, 0)
 
     order.total = total
-    db.query(CartItem).filter(CartItem.user_id == user_id).delete()
+    
+    # Delete only the ordered items from the cart
+    delete_query = db.query(CartItem).filter(CartItem.user_id == user_id)
+    if product_id is not None:
+        delete_query = delete_query.filter(CartItem.product_id == product_id)
+    delete_query.delete()
+    
     db.commit()
     db.refresh(order)
     return order
@@ -90,3 +99,14 @@ def attach_order_items(db: Session, orders: list[Order]) -> list[dict]:
         }
         for order in orders
     ]
+
+
+def update_order_status(db: Session, order_id: int, status: str) -> Order | None:
+    order = db.query(Order).filter(Order.id == order_id).first()
+    if not order:
+        return None
+    order.status = status
+    db.commit()
+    db.refresh(order)
+    return order
+
