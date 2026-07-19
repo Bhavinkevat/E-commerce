@@ -106,13 +106,11 @@ def request_forgot_password_otp(
                 server.sendmail(settings.smtp_from, [payload.email], msg.as_string())
         except Exception as e:
             import traceback
+            print(f"\n!!! SMTP SEND ERROR: Could not send email. Details: {str(e)} !!!")
             traceback.print_exc()
-            raise HTTPException(
-                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail=f"SMTP Error: Could not send email. Details: {str(e)}",
-            )
+            print("!!! Continuing OTP password reset flow using the code logged above !!!\n")
 
-    return {"message": "OTP sent to your email successfully"}
+    return {"message": "OTP generated successfully (check terminal console/email)"}
 
 
 @router.post("/forgot-password/verify")
