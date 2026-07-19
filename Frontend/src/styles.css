@@ -573,6 +573,44 @@ h1 {
   aspect-ratio: 4 / 3;
   background: #edf2ec;
   overflow: hidden;
+  position: relative;
+}
+
+.wishlist-btn-floating {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid #d9dfd8;
+  display: grid;
+  place-items: center;
+  color: #526158;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+  z-index: 10;
+  padding: 0;
+}
+
+.wishlist-btn-floating:hover {
+  transform: scale(1.1);
+  background: #ffffff;
+  color: #ae4a34;
+}
+
+.wishlist-btn-floating.active {
+  color: #ae4a34;
+  background: #ffffff;
+}
+
+.product-card-actions {
+  display: grid !important;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  width: 100%;
 }
 
 .product-card-image img {
