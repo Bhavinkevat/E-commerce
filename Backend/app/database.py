@@ -121,3 +121,29 @@ def ensure_user_otp_columns() -> None:
             with engine.begin() as connection:
                 connection.execute(text(sql))
 
+
+def ensure_default_admin() -> None:
+    from app.core.security import hash_password
+    db = SessionLocal()
+    try:
+        admin = db.execute(text("SELECT id FROM users WHERE role = 'admin' LIMIT 1")).first()
+        if not admin:
+            db.execute(
+                text(
+                    "INSERT INTO users (name, email, hashed_password, role) "
+                    "VALUES (:name, :email, :password, :role)"
+                ),
+                {
+                    "name": "Gahena Admin",
+                    "email": "admin@yopmail.com",
+                    "password": hash_password("admin123"),
+                    "role": "admin",
+                },
+            )
+            db.commit()
+            print("Single Admin account initialized: admin@yopmail.com")
+    except Exception as e:
+        print(f"Admin seed note: {e}")
+    finally:
+        db.close()
+
