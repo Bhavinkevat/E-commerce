@@ -38,6 +38,10 @@ function mapCartItem(item: any): CartItem {
           name: item.product.name,
           category: item.product.category,
           price: item.product.price,
+          original_price: item.product.original_price || 0,
+          sizes: item.product.sizes || "",
+          colors: item.product.colors || "",
+          gallery_images: item.product.gallery_images || "",
           stock: item.product.stock,
           rating: item.product.rating,
           status: item.product.status,
@@ -174,4 +178,15 @@ export async function checkout(shippingAddress: string, productId?: number): Pro
     body: JSON.stringify(payload),
   });
   return mapOrder(order);
+}
+
+export async function listActiveCoupons() {
+  return requestJson<import("../types/catalog").Coupon[]>("/coupons/active");
+}
+
+export async function applyCoupon(code: string, cartTotal: number) {
+  return requestJson<import("../types/catalog").CouponApplyResult>("/coupons/apply", {
+    method: "POST",
+    body: JSON.stringify({ code, cart_total: cartTotal }),
+  });
 }

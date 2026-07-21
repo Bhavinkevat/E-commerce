@@ -6,9 +6,10 @@ import {
   removeFromCart, 
   updateProfile, 
   checkout, 
+  applyCoupon,
   type CartItem
 } from "../../apis/user";
-import type { OrderSummary } from "../../types/catalog";
+import type { CouponApplyResult, OrderSummary } from "../../types/catalog";
 import { 
   MapPin, 
   CreditCard, 
@@ -18,7 +19,8 @@ import {
   Sparkles, 
   X,
   ShoppingBag,
-  Coins
+  Coins,
+  Tag
 } from "lucide-react";
 import { useToast } from "../../context/ToastContext";
 
@@ -28,11 +30,14 @@ function CartPage() {
   const [items, setItems] = useState<CartItem[]>([]);
   const { showToast } = useToast();
 
-  // Checkout states
+  // Checkout & Coupon states
   const [checkoutItem, setCheckoutItem] = useState<CartItem | null>(null);
   const [checkoutStep, setCheckoutStep] = useState<number>(1);
   const [address, setAddress] = useState<string>("");
   const [paymentMethod, setPaymentMethod] = useState<string>("COD");
+  const [couponCodeInput, setCouponCodeInput] = useState<string>("");
+  const [appliedDiscount, setAppliedDiscount] = useState<CouponApplyResult | null>(null);
+  const [applyingCoupon, setApplyingCoupon] = useState<boolean>(false);
   const [isPlacingOrder, setIsPlacingOrder] = useState<boolean>(false);
   const [orderError, setOrderError] = useState<string>("");
   const [successOrder, setSuccessOrder] = useState<OrderSummary | null>(null);
@@ -46,8 +51,31 @@ function CartPage() {
     setCheckoutStep(1);
     setAddress(user?.address || "");
     setPaymentMethod("COD");
+    setCouponCodeInput("");
+    setAppliedDiscount(null);
     setOrderError("");
     setSuccessOrder(null);
+  };
+
+  const handleApplyCouponCode = async () => {
+    if (!checkoutItem || !couponCodeInput.trim()) return;
+    setApplyingCoupon(true);
+    setOrderError("");
+    try {
+      const subtotal = (checkoutItem.product?.price || 0) * checkoutItem.quantity;
+      const res = await applyCoupon(couponCodeInput.trim(), subtotal);
+      if (res.valid) {
+        setAppliedDiscount(res);
+        showToast(res.message, "success");
+      } else {
+        setAppliedDiscount(null);
+        showToast(res.message, "error");
+      }
+    } catch {
+      showToast("Could not apply coupon.", "error");
+    } finally {
+      setApplyingCoupon(false);
+    }
   };
 
   const closeCheckout = () => {
@@ -239,18 +267,56 @@ function CartPage() {
                     </div>
                   </div>
 
+                  <div className="coupon-apply-section">
+                    <div style={{ display: "flex", gap: "8px" }}>
+                      <input
+                        type="text"
+                        className="text-field-input"
+                        placeholder="Have a coupon? e.g. WELCOME25"
+                        value={couponCodeInput}
+                        onChange={(e) => setCouponCodeInput(e.target.value.toUpperCase())}
+                        style={{ flex: 1, textTransform: "uppercase" }}
+                      />
+                      <button
+                        type="button"
+                        className="mini-button"
+                        onClick={handleApplyCouponCode}
+                        disabled={applyingCoupon || !couponCodeInput.trim()}
+                        style={{ background: "#1f6f59", color: "#fff", padding: "0 16px" }}
+                      >
+                        {applyingCoupon ? "Applying..." : "Apply"}
+                      </button>
+                    </div>
+                    {appliedDiscount?.valid && (
+                      <p style={{ color: "#1f6f59", fontSize: "0.85rem", margin: "6px 0 0", fontWeight: 600 }}>
+                        ✓ Coupon {appliedDiscount.code} applied! Saved ₹{appliedDiscount.discount_amount}
+                      </p>
+                    )}
+                  </div>
+
                   <div className="checkout-details-card">
                     <div className="checkout-detail-row">
                       <span>Subtotal</span>
                       <span>₹{((checkoutItem.product?.price || 0) * checkoutItem.quantity).toLocaleString("en-IN")}</span>
                     </div>
+                    {appliedDiscount?.valid && (
+                      <div className="checkout-detail-row" style={{ color: "#1f6f59" }}>
+                        <span>Coupon Discount ({appliedDiscount.code})</span>
+                        <span>- ₹{appliedDiscount.discount_amount.toLocaleString("en-IN")}</span>
+                      </div>
+                    )}
                     <div className="checkout-detail-row">
                       <span>Shipping</span>
                       <span style={{ color: "#1f6f59", fontWeight: 700 }}>FREE</span>
                     </div>
-                    <div className="checkout-detail-row">
+                    <div className="checkout-detail-row" style={{ fontSize: "1.1rem", fontWeight: 700 }}>
                       <span>Total Amount</span>
-                      <span>₹{((checkoutItem.product?.price || 0) * checkoutItem.quantity).toLocaleString("en-IN")}</span>
+                      <span>
+                        ₹
+                        {appliedDiscount?.valid
+                          ? appliedDiscount.final_total.toLocaleString("en-IN")
+                          : ((checkoutItem.product?.price || 0) * checkoutItem.quantity).toLocaleString("en-IN")}
+                      </span>
                     </div>
                   </div>
                 </div>

@@ -1182,5 +1182,337 @@ h1 {
   to { width: 0%; }
 }
 
+/* ==========================================================================
+   E-COMMERCE CATALOG & PRODUCT DETAILS (FLIPKART / AMAZON STYLE)
+   ========================================================================== */
+
+.ecommerce-clean-card {
+  cursor: pointer;
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  border: 1px solid #e2e8f0 !important;
+}
+
+.ecommerce-clean-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.08);
+}
+
+.product-category-tag {
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #878787;
+  letter-spacing: 0.5px;
+  margin: 0 0 4px;
+}
+
+.product-title {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #212121;
+  margin: 0 0 8px;
+  line-height: 1.35;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.product-price-block {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-top: 4px;
+  flex-wrap: wrap;
+}
+
+.selling-price {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: #212121;
+}
+
+.mrp-price {
+  font-size: 0.88rem;
+  color: #878787;
+  text-decoration: line-through;
+}
+
+.discount-badge {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #388e3c;
+}
+
+/* PRODUCT DETAILS PAGE */
+.product-details-container {
+  display: grid;
+  grid-template-columns: minmax(0, 420px) minmax(0, 1fr);
+  gap: 32px;
+  background: #ffffff;
+  padding: 24px;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+}
+
+@media (max-width: 900px) {
+  .product-details-container {
+    grid-template-columns: 1fr;
+  }
+}
+
+.main-image-viewport {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  background: #f8faf7;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid #e2e8f0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.main-details-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.gallery-thumbnails-strip {
+  display: flex;
+  gap: 10px;
+  margin-top: 14px;
+  overflow-x: auto;
+  padding-bottom: 6px;
+}
+
+.thumb-btn {
+  width: 60px;
+  height: 60px;
+  border-radius: 6px;
+  border: 2px solid #e2e8f0;
+  overflow: hidden;
+  padding: 0;
+  background: #ffffff;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: border-color 0.2s ease;
+}
+
+.thumb-btn.active, .thumb-btn:hover {
+  border-color: #e65100;
+}
+
+.thumb-btn img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.details-info-column {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.product-brand-tag {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #878787;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.details-product-title {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #212121;
+  margin: 0;
+  line-height: 1.3;
+}
+
+.details-price-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 4px 0;
+}
+
+.hot-deal-badge {
+  background: #388e3c;
+  color: #ffffff;
+  font-size: 0.8rem;
+  font-weight: 800;
+  padding: 4px 8px;
+  border-radius: 4px;
+  text-transform: uppercase;
+}
+
+.price-values {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+
+.details-net-price {
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: #212121;
+}
+
+.details-mrp-price {
+  font-size: 1.1rem;
+  color: #878787;
+  text-decoration: line-through;
+}
+
+.selector-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.selector-label {
+  font-size: 0.9rem;
+  color: #212121;
+}
+
+.label-with-link {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.size-chart-link {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #2874f0;
+  cursor: pointer;
+}
+
+.chip-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.chip-button {
+  min-width: 44px;
+  height: 40px;
+  padding: 0 14px;
+  border-radius: 6px;
+  border: 1px solid #d0d5dd;
+  background: #ffffff;
+  color: #212121;
+  font-weight: 600;
+  font-size: 0.88rem;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.chip-button:hover {
+  border-color: #2874f0;
+  color: #2874f0;
+}
+
+.chip-button.active {
+  border-color: #2874f0;
+  background: rgba(40, 116, 240, 0.08);
+  color: #2874f0;
+  box-shadow: 0 0 0 1px #2874f0;
+}
+
+/* COUPONS BOX */
+.available-coupons-box {
+  background: #f0f7ff;
+  border: 1px dashed #2874f0;
+  border-radius: 8px;
+  padding: 14px 16px;
+}
+
+.coupons-box-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+  color: #2874f0;
+  font-size: 0.92rem;
+  margin-bottom: 10px;
+}
+
+.coupons-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.coupon-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #ffffff;
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: 1px solid #e0e9f6;
+}
+
+.coupon-info strong {
+  color: #212121;
+  font-size: 0.88rem;
+}
+
+.coupon-info p {
+  margin: 2px 0 0;
+  font-size: 0.78rem;
+  color: #616161;
+}
+
+.copy-coupon-btn {
+  background: rgba(40, 116, 240, 0.1);
+  color: #2874f0;
+  border-color: rgba(40, 116, 240, 0.2);
+  font-size: 0.8rem;
+}
+
+.details-description h3 {
+  font-size: 1.05rem;
+  margin: 0 0 6px;
+  color: #212121;
+}
+
+.details-description p {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #616161;
+  line-height: 1.5;
+}
+
+.details-action-buttons {
+  display: flex;
+  gap: 14px;
+  margin-top: 10px;
+}
+
+.status-tag.active {
+  background: #e8f5e9;
+  color: #2e7d32;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.status-tag.inactive {
+  background: #ffebee;
+  color: #c62828;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+
 
 

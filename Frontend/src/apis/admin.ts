@@ -82,3 +82,20 @@ export async function updateOrderStatus(orderId: number, status: string): Promis
     date: new Date(order.created_at).toISOString().slice(0, 10),
   };
 }
+
+export async function listCouponsAdmin() {
+  return requestJson<import("../types/catalog").Coupon[]>("/coupons/admin");
+}
+
+export async function createCouponAdmin(payload: Omit<import("../types/catalog").Coupon, "id" | "created_at">) {
+  return requestJson<import("../types/catalog").Coupon>("/coupons/admin", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+}
+
+export async function deleteCouponAdmin(id: number) {
+  return requestJson<{ success: boolean }>(`/coupons/admin/${id}`, {
+    method: "DELETE",
+  });
+}

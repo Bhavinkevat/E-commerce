@@ -81,9 +81,12 @@ def ensure_product_image_column() -> None:
     if "image_url" not in columns:
         with engine.begin() as connection:
             connection.execute(
-                text("ALTER TABLE products ADD COLUMN image_url TEXT NULL AFTER status")
+                text("ALTER TABLE products ADD COLUMN image_url LONGTEXT NULL AFTER status")
             )
             connection.execute(text("UPDATE products SET image_url = '' WHERE image_url IS NULL"))
+    else:
+        with engine.begin() as connection:
+            connection.execute(text("ALTER TABLE products MODIFY COLUMN image_url LONGTEXT NULL"))
 
 
 def ensure_user_profile_columns() -> None:
@@ -120,6 +123,55 @@ def ensure_user_otp_columns() -> None:
         if col_name not in columns:
             with engine.begin() as connection:
                 connection.execute(text(sql))
+
+
+def ensure_product_extra_columns() -> None:
+    inspector = inspect(engine)
+    if not inspector.has_table("products"):
+        return
+
+    columns = [column["name"] for column in inspector.get_columns("products")]
+    new_cols = {
+        "original_price": "ALTER TABLE products ADD COLUMN original_price INT NOT NULL DEFAULT 0 AFTER price",
+        "sizes": "ALTER TABLE products ADD COLUMN sizes TEXT NULL AFTER original_price",
+        "colors": "ALTER TABLE products ADD COLUMN colors TEXT NULL AFTER sizes",
+        "gallery_images": "ALTER TABLE products ADD COLUMN gallery_images LONGTEXT NULL AFTER colors",
+    }
+
+    for col_name, sql in new_cols.items():
+        if col_name not in columns:
+            with engine.begin() as connection:
+                connection.execute(text(sql))
+
+    with engine.begin() as connection:
+        connection.execute(text("ALTER TABLE products MODIFY COLUMN description LONGTEXT NULL"))
+        connection.execute(text("ALTER TABLE products MODIFY COLUMN gallery_images LONGTEXT NULL"))
+        connection.execute(text("UPDATE products SET original_price = 0 WHERE original_price IS NULL"))
+        connection.execute(text("UPDATE products SET sizes = '' WHERE sizes IS NULL"))
+        connection.execute(text("UPDATE products SET colors = '' WHERE colors IS NULL"))
+        connection.execute(text("UPDATE products SET gallery_images = '' WHERE gallery_images IS NULL"))
+
+
+def ensure_default_coupons() -> None:
+    db = SessionLocal()
+    try:
+        count = db.execute(text("SELECT COUNT(*) FROM coupons")).scalar()
+        if count == 0:
+            db.execute(
+                text(
+                    "INSERT INTO coupons (code, discount_type, discount_value, min_order_value, is_active) "
+                    "VALUES "
+                    "('WELCOME25', 'percentage', 25, 499, 1), "
+                    "('FESTIVE100', 'flat', 100, 999, 1), "
+                    "('GAHENA10', 'percentage', 10, 0, 1)"
+                )
+            )
+            db.commit()
+            print("Default Coupons Initialized.")
+    except Exception as e:
+        print(f"Coupon seed note: {e}")
+    finally:
+        db.close()
 
 
 def ensure_default_admin() -> None:

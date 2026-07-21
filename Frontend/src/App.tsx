@@ -9,6 +9,7 @@ import AdminLayout from "./layouts/AdminLayout";
 import UserLayout from "./layouts/UserLayout";
 import AdminDashboardPage from "./pages/admin/DashboardPage";
 import AdminProductsPage from "./pages/admin/ProductsPage";
+import AdminCouponsPage from "./pages/admin/CouponsPage";
 import AdminOrdersPage from "./pages/admin/OrdersPage";
 import AdminCustomersPage from "./pages/admin/CustomersPage";
 import AdminAnalyticsPage from "./pages/admin/AnalyticsPage";
@@ -36,6 +37,7 @@ function App() {
         <Route path="/admin" element={<AdminLayout />}>
           <Route index element={<AdminDashboardPage />} />
           <Route path="products" element={<AdminProductsPage />} />
+          <Route path="coupons" element={<AdminCouponsPage />} />
           <Route path="orders" element={<AdminOrdersPage />} />
           <Route path="customers" element={<AdminCustomersPage />} />
           <Route path="analytics" element={<AdminAnalyticsPage />} />

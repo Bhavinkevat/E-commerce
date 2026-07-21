@@ -6,13 +6,16 @@ from app.database import (
     engine,
     check_database_connection,
     ensure_product_image_column,
+    ensure_product_extra_columns,
     ensure_user_role_column,
     ensure_user_profile_columns,
     ensure_user_otp_columns,
+    ensure_default_coupons,
     ensure_default_admin,
 )
 from app.routers.admin import router as admin_router
 from app.routers.cart import router as cart_router
+from app.routers.coupon import router as coupon_router
 from app.routers.order import router as order_router
 from app.routers.product import router as product_router
 from app.routers.user import router as user_router
@@ -30,13 +33,16 @@ app.add_middleware(
 )
 
 
+# Trigger reload for LONGTEXT migration
 @app.on_event("startup")
 def startup_event():
     Base.metadata.create_all(bind=engine)
     ensure_user_role_column()
     ensure_product_image_column()
+    ensure_product_extra_columns()
     ensure_user_profile_columns()
     ensure_user_otp_columns()
+    ensure_default_coupons()
     ensure_default_admin()
 
 
@@ -46,6 +52,7 @@ app.include_router(cart_router)
 app.include_router(wishlist_router)
 app.include_router(order_router)
 app.include_router(admin_router)
+app.include_router(coupon_router)
 
 
 @app.get("/")

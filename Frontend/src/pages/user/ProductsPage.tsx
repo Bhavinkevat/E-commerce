@@ -1,8 +1,7 @@
 import { useEffect, useState } from "react";
-import { Heart, ShoppingCart, CreditCard } from "lucide-react";
-import { addToCart, listProducts, toggleWishlist, getWishlist } from "../../apis/user";
+import { Heart } from "lucide-react";
+import { listProducts, toggleWishlist, getWishlist } from "../../apis/user";
 import type { Product } from "../../types/catalog";
-import Button from "../../components/common/Button";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "../../context/ToastContext";
 
@@ -21,7 +20,8 @@ function ProductsPage() {
     return wishlist.some((item) => item.id === productId);
   };
 
-  const handleToggleWishlist = async (productId: number, productName: string) => {
+  const handleToggleWishlist = async (e: React.MouseEvent, productId: number, productName: string) => {
+    e.stopPropagation();
     try {
       const updatedWishlist = await toggleWishlist(productId);
       const isAdded = updatedWishlist.some((item) => item.id === productId);
@@ -30,16 +30,22 @@ function ProductsPage() {
         isAdded ? `${productName} added to wishlist!` : `${productName} removed from wishlist!`,
         "success"
       );
-    } catch (error) {
+    } catch {
       showToast("Failed to update wishlist.", "error");
     }
+  };
+
+  const calculateDiscountPercent = (sellingPrice: number, originalPrice?: number) => {
+    if (!originalPrice || originalPrice <= sellingPrice) return null;
+    const pct = Math.round(((originalPrice - sellingPrice) / originalPrice) * 100);
+    return pct > 0 ? `${pct}% off` : null;
   };
 
   return (
     <section className="panel-stack">
       <header className="panel-header">
         <div>
-          <p className="eyebrow">User</p>
+          <p className="eyebrow">Explore Catalog</p>
           <h1>Products</h1>
         </div>
       </header>
@@ -50,68 +56,53 @@ function ProductsPage() {
         </div>
       ) : (
         <div className="catalog-grid">
-          {products.map((product) => (
-            <article key={product.id} className="product-card">
-              <div className="product-card-image" style={{ position: "relative" }}>
-                {product.image_url ? (
-                  <img src={product.image_url} alt={product.name} />
-                ) : (
-                  <div className="product-card-image-placeholder">No image</div>
-                )}
-                <button
-                  type="button"
-                  className={`wishlist-btn-floating ${isWishlisted(product.id) ? "active" : ""}`}
-                  onClick={() => handleToggleWishlist(product.id, product.name)}
-                  aria-label="Toggle Wishlist"
-                >
-                  <Heart
-                    size={18}
-                    fill={isWishlisted(product.id) ? "#ae4a34" : "none"}
-                    stroke={isWishlisted(product.id) ? "#ae4a34" : "currentColor"}
-                  />
-                </button>
-              </div>
+          {products.map((product) => {
+            const mrp = product.original_price && product.original_price > product.price ? product.original_price : product.price * 3 || 999;
+            const discountBadge = calculateDiscountPercent(product.price, mrp);
 
-              <div className="product-card-body">
-                <p className="product-category">{product.category}</p>
-                <h3>{product.name}</h3>
-                <p className="summary compact">{product.description}</p>
-              </div>
+            return (
+              <article
+                key={product.id}
+                className="product-card ecommerce-clean-card"
+                onClick={() => navigate(`/app/products/${product.id}`)}
+              >
+                <div className="product-card-image">
+                  {product.image_url ? (
+                    <img src={product.image_url} alt={product.name} />
+                  ) : (
+                    <div className="product-card-image-placeholder">No image</div>
+                  )}
+                  <button
+                    type="button"
+                    className={`wishlist-btn-floating ${isWishlisted(product.id) ? "active" : ""}`}
+                    onClick={(e) => handleToggleWishlist(e, product.id, product.name)}
+                    aria-label="Toggle Wishlist"
+                  >
+                    <Heart
+                      size={18}
+                      fill={isWishlisted(product.id) ? "#ae4a34" : "none"}
+                      stroke={isWishlisted(product.id) ? "#ae4a34" : "currentColor"}
+                    />
+                  </button>
+                </div>
 
-              <div className="product-meta">
-                <strong>₹{product.price.toLocaleString("en-IN")}</strong>
-                <span>Stock: {product.stock}</span>
-                <span>Rating: {product.rating}</span>
-              </div>
-
-              <div className="row-actions product-card-actions">
-                <Button
-                  type="button"
-                  icon={<ShoppingCart size={16} />}
-                  onClick={async () => {
-                    await addToCart(product.id);
-                    showToast(`${product.name} added to cart!`, "success");
-                  }}
-                  style={{ width: "100%" }}
-                >
-                  Add to Cart
-                </Button>
-                <Button
-                  type="button"
-                  variant="dark"
-                  icon={<CreditCard size={16} />}
-                  onClick={async () => {
-                    await addToCart(product.id);
-                    showToast(`${product.name} added to cart. Proceeding to checkout.`, "success");
-                    navigate("/app/cart");
-                  }}
-                  style={{ width: "100%" }}
-                >
-                  Buy Now
-                </Button>
-              </div>
-            </article>
-          ))}
+                <div className="product-card-body">
+                  <p className="product-category-tag">{product.category}</p>
+                  <h3 className="product-title">{product.name}</h3>
+                  
+                  <div className="product-price-block">
+                    <span className="selling-price">₹{product.price.toLocaleString("en-IN")}</span>
+                    {mrp > product.price && (
+                      <span className="mrp-price">₹{mrp.toLocaleString("en-IN")}</span>
+                    )}
+                    {discountBadge && (
+                      <span className="discount-badge">{discountBadge}</span>
+                    )}
+                  </div>
+                </div>
+              </article>
+            );
+          })}
         </div>
       )}
     </section>

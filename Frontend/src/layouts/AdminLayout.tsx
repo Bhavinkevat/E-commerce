@@ -1,5 +1,5 @@
 import { Outlet } from "react-router-dom";
-import { BarChart3, Boxes, ClipboardList, LayoutDashboard, Settings, UserCircle2, Users } from "lucide-react";
+import { BarChart3, Boxes, ClipboardList, LayoutDashboard, Settings, Tag, UserCircle2, Users } from "lucide-react";
 import Sidebar from "../components/layout/Sidebar";
 import { useAuth } from "../context/AuthContext";
 import { useState } from "react";
@@ -7,6 +7,7 @@ import { useState } from "react";
 const items = [
   { label: "Dashboard", to: "/admin", icon: LayoutDashboard },
   { label: "Products", to: "/admin/products", icon: Boxes },
+  { label: "Coupons", to: "/admin/coupons", icon: Tag },
   { label: "Orders", to: "/admin/orders", icon: ClipboardList },
   { label: "Customers", to: "/admin/customers", icon: Users },
   { label: "Analytics", to: "/admin/analytics", icon: BarChart3 },

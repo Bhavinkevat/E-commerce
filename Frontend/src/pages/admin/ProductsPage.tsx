@@ -10,7 +10,11 @@ const emptyForm = {
   name: "",
   category: "",
   price: 0,
-  stock: 0,
+  original_price: 0,
+  sizes: "6, 7, 8, 9, 10",
+  colors: "Black, Blue, Navy",
+  gallery_images: "",
+  stock: 10,
   rating: 4.5,
   status: "Active" as "Active" | "Draft",
   description: "",
@@ -165,6 +169,10 @@ function ProductsPage() {
                             name: product.name,
                             category: product.category,
                             price: product.price,
+                            original_price: product.original_price || 0,
+                            sizes: product.sizes || "6, 7, 8, 9, 10",
+                            colors: product.colors || "Black, Blue, Navy",
+                            gallery_images: product.gallery_images || "",
                             stock: product.stock,
                             rating: product.rating,
                             status: product.status,
@@ -257,13 +265,32 @@ function ProductsPage() {
                   label="Category"
                   value={form.category}
                   onChange={(event) => setForm({ ...form, category: event.target.value })}
-                  placeholder="Category"
+                  placeholder="Category e.g. Shoes, Jewelry"
                 />
                 <TextField
-                  label="Price"
+                  label="Selling Price (₹)"
                   type="number"
                   value={String(form.price)}
                   onChange={(event) => setForm({ ...form, price: Number(event.target.value) })}
+                />
+                <TextField
+                  label="MRP / Original Price (₹)"
+                  type="number"
+                  value={String(form.original_price)}
+                  onChange={(event) => setForm({ ...form, original_price: Number(event.target.value) })}
+                  placeholder="e.g. 999 for discount display"
+                />
+                <TextField
+                  label="Available Sizes (Comma separated)"
+                  value={form.sizes}
+                  onChange={(event) => setForm({ ...form, sizes: event.target.value })}
+                  placeholder="e.g. 6, 7, 8, 9, 10 or S, M, L"
+                />
+                <TextField
+                  label="Available Colors (Comma separated)"
+                  value={form.colors}
+                  onChange={(event) => setForm({ ...form, colors: event.target.value })}
+                  placeholder="e.g. Black, Blue, Navy"
                 />
                 <TextField
                   label="Stock"
@@ -277,7 +304,7 @@ function ProductsPage() {
                   onChange={(event) =>
                     setForm({ ...form, description: event.target.value })
                   }
-                  placeholder="Short product description"
+                  placeholder="Product description and highlights"
                 />
               </div>
               {formError ? <div className="feedback error">{formError}</div> : null}
