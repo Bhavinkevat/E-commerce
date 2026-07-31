@@ -1,5 +1,12 @@
 export type AuthMode = "login" | "signup";
 
+export interface PermissionItem {
+  can_view: boolean;
+  can_create: boolean;
+  can_update: boolean;
+  can_delete: boolean;
+}
+
 export interface User {
   id: number;
   name: string;
@@ -8,9 +15,11 @@ export interface User {
   email: string;
   phone?: string;
   address?: string;
-  role: "admin" | "user";
+  role: string;
   created_at: string;
+  permissions?: Record<string, PermissionItem>;
 }
+
 
 export interface AuthResponse {
   access_token: string;

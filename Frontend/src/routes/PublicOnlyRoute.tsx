@@ -13,8 +13,9 @@ function PublicOnlyRoute() {
   }
 
   if (user) {
-    return <Navigate to={user.role === "admin" ? "/admin" : "/app"} replace />;
+    return <Navigate to={user.role !== "user" ? "/admin" : "/app"} replace />;
   }
+
 
   return <Outlet />;
 }

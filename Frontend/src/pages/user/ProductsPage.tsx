@@ -1,13 +1,24 @@
-import { useEffect, useState } from "react";
-import { Heart } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { Heart, Search, X } from "lucide-react";
 import { listProducts, toggleWishlist, getWishlist } from "../../apis/user";
 import type { Product } from "../../types/catalog";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "../../context/ToastContext";
 
+const CATEGORIES = [
+  "All",
+  "Men's Clothes",
+  "Women's Clothes",
+  "Men's Footwear",
+  "Women's Footwear",
+  "Jewellery",
+];
+
 function ProductsPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [wishlist, setWishlist] = useState<Product[]>([]);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("All");
   const navigate = useNavigate();
   const { showToast } = useToast();
 
@@ -41,22 +52,106 @@ function ProductsPage() {
     return pct > 0 ? `${pct}% off` : null;
   };
 
+  const filteredProducts = useMemo(() => {
+    return products.filter((product) => {
+      const query = searchQuery.trim().toLowerCase();
+      const matchesSearch =
+        !query ||
+        product.name.toLowerCase().includes(query) ||
+        product.category.toLowerCase().includes(query) ||
+        (product.description && product.description.toLowerCase().includes(query));
+
+      if (!matchesSearch) return false;
+
+      if (selectedCategory === "All") return true;
+
+      const pCat = product.category.toLowerCase();
+      const selCat = selectedCategory.toLowerCase();
+
+      if (pCat === selCat) return true;
+
+      if (selCat === "men's clothes") {
+        return (pCat.includes("men") && (pCat.includes("cloth") || pCat.includes("shirt") || pCat.includes("pant") || pCat.includes("wear"))) || pCat.includes("men's clothes");
+      }
+      if (selCat === "women's clothes") {
+        return (pCat.includes("women") && (pCat.includes("cloth") || pCat.includes("dress") || pCat.includes("top") || pCat.includes("wear"))) || pCat.includes("women's clothes");
+      }
+      if (selCat === "men's footwear") {
+        return pCat.includes("men") && (pCat.includes("footwear") || pCat.includes("shoe") || pCat.includes("sneaker"));
+      }
+      if (selCat === "women's footwear") {
+        return pCat.includes("women") && (pCat.includes("footwear") || pCat.includes("shoe") || pCat.includes("heel"));
+      }
+      if (selCat === "jewellery") {
+        return pCat.includes("jewel") || pCat.includes("earring") || pCat.includes("ring") || pCat.includes("necklace");
+      }
+
+      return pCat.includes(selCat) || (pCat.includes("footwear") && selCat.includes("footwear"));
+    });
+  }, [products, searchQuery, selectedCategory]);
+
   return (
     <section className="panel-stack">
-      <header className="panel-header">
+      <header className="panel-header catalog-header">
         <div>
           <p className="eyebrow">Explore Catalog</p>
           <h1>Products</h1>
         </div>
+
+        <div className="product-search-wrapper">
+          <Search size={18} className="search-icon" />
+          <input
+            type="text"
+            className="product-search-input"
+            placeholder="Search for products, brands & more..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+          {searchQuery && (
+            <button
+              type="button"
+              className="search-clear-btn"
+              onClick={() => setSearchQuery("")}
+              aria-label="Clear search"
+            >
+              <X size={16} />
+            </button>
+          )}
+        </div>
       </header>
 
-      {products.length === 0 ? (
-        <div className="info-card">
-          <span>No products available yet.</span>
+      <div className="category-pills-bar">
+        {CATEGORIES.map((cat) => (
+          <button
+            key={cat}
+            type="button"
+            className={`category-pill ${selectedCategory === cat ? "active" : ""}`}
+            onClick={() => setSelectedCategory(cat)}
+          >
+            {cat}
+          </button>
+        ))}
+      </div>
+
+      {filteredProducts.length === 0 ? (
+        <div className="info-card empty-catalog-state">
+          <span>No products found matching your search or selected category.</span>
+          {(searchQuery || selectedCategory !== "All") && (
+            <button
+              type="button"
+              className="reset-filters-btn"
+              onClick={() => {
+                setSearchQuery("");
+                setSelectedCategory("All");
+              }}
+            >
+              Reset Filters
+            </button>
+          )}
         </div>
       ) : (
         <div className="catalog-grid">
-          {products.map((product) => {
+          {filteredProducts.map((product) => {
             const mrp = product.original_price && product.original_price > product.price ? product.original_price : product.price * 3 || 999;
             const discountBadge = calculateDiscountPercent(product.price, mrp);
 
@@ -110,3 +205,4 @@ function ProductsPage() {
 }
 
 export default ProductsPage;
+

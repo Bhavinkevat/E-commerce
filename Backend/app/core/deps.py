@@ -34,11 +34,15 @@ def get_current_user(
 
 def require_roles(*allowed_roles: str) -> Callable:
     def dependency(user: User = Depends(get_current_user)) -> User:
-        if allowed_roles and user.role not in allowed_roles:
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail="You are not allowed to access this resource",
-            )
+        if allowed_roles:
+            if "admin" in allowed_roles and user.role != "user":
+                return user
+            if user.role not in allowed_roles:
+                raise HTTPException(
+                    status_code=status.HTTP_403_FORBIDDEN,
+                    detail="You are not allowed to access this resource",
+                )
         return user
 
     return dependency
+

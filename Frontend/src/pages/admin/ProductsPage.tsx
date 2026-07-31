@@ -1,14 +1,24 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { ImagePlus, Pencil, Plus, Trash2 } from "lucide-react";
+import { ImagePlus, Pencil, Plus, Search, Trash2, X } from "lucide-react";
 import Button from "../../components/common/Button";
 import TextField from "../../components/common/TextField";
 import { listProducts, removeProduct, saveProduct } from "../../apis/admin";
 import type { Product } from "../../types/catalog";
+import { useAuth } from "../../context/AuthContext";
+
+const STANDARD_CATEGORIES = [
+  "Men's Clothes",
+  "Women's Clothes",
+  "Men's Footwear",
+  "Women's Footwear",
+  "Jewellery",
+];
 
 const emptyForm = {
   id: undefined as number | undefined,
   name: "",
-  category: "",
+  category: "Men's Clothes",
+  customCategory: "",
   price: 0,
   original_price: 0,
   sizes: "6, 7, 8, 9, 10",
@@ -24,13 +34,26 @@ const emptyForm = {
 const MAX_IMAGE_SIZE = 2 * 1024 * 1024;
 
 function ProductsPage() {
+  const { user } = useAuth();
   const [products, setProducts] = useState<Product[]>([]);
   const [form, setForm] = useState(emptyForm);
+  const [isCustomCat, setIsCustomCat] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [imageError, setImageError] = useState("");
   const [formError, setFormError] = useState("");
   const [saving, setSaving] = useState(false);
+  
+  // Admin Table Filter States
+  const [adminSearch, setAdminSearch] = useState("");
+  const [adminCategory, setAdminCategory] = useState("All");
+
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const isSuperAdmin = !user || user.role.toLowerCase() === "admin" || user.role.toLowerCase() === "super admin";
+  const perm = user?.permissions?.["Products"];
+  const canCreate = isSuperAdmin || (perm ? perm.can_create : true);
+  const canUpdate = isSuperAdmin || (perm ? perm.can_update : true);
+  const canDelete = isSuperAdmin || (perm ? perm.can_delete : true);
 
   const refresh = async () => {
     setProducts(await listProducts());
@@ -48,6 +71,7 @@ function ProductsPage() {
   const closeModal = () => {
     setIsModalOpen(false);
     setForm(emptyForm);
+    setIsCustomCat(false);
     setImageError("");
     setFormError("");
   };
@@ -80,7 +104,8 @@ function ProductsPage() {
   };
 
   const submit = async () => {
-    if (!form.name.trim() || !form.category.trim()) {
+    const finalCategory = isCustomCat ? form.customCategory.trim() : form.category;
+    if (!form.name.trim() || !finalCategory) {
       setFormError("Name and category are required.");
       return;
     }
@@ -89,7 +114,10 @@ function ProductsPage() {
     setSaving(true);
 
     try {
-      await saveProduct(form);
+      await saveProduct({
+        ...form,
+        category: finalCategory,
+      });
       closeModal();
       await refresh();
     } catch (err) {
@@ -99,6 +127,24 @@ function ProductsPage() {
     }
   };
 
+  const filteredProducts = useMemo(() => {
+    return products.filter((product) => {
+      const q = adminSearch.trim().toLowerCase();
+      const matchesSearch =
+        !q ||
+        product.name.toLowerCase().includes(q) ||
+        product.category.toLowerCase().includes(q);
+
+      const matchesCategory =
+        adminCategory === "All" ||
+        product.category === adminCategory ||
+        (adminCategory === "Men's Footwear" && product.category === "Footwear") ||
+        (adminCategory === "Women's Footwear" && product.category === "Footwear");
+
+      return matchesSearch && matchesCategory;
+    });
+  }, [products, adminSearch, adminCategory]);
+
   return (
     <section className="panel-stack">
       <header className="panel-header">
@@ -106,20 +152,64 @@ function ProductsPage() {
           <p className="eyebrow">Admin</p>
           <h1>Product Management</h1>
         </div>
-        <Button
-          variant="ghost"
-          icon={<Plus size={18} />}
-          onClick={() => {
-            setForm(emptyForm);
-            setImageError("");
-            setFormError("");
-            setIsModalOpen(true);
-          }}
-          type="button"
-        >
-          New Product
-        </Button>
+        {canCreate && (
+          <Button
+            variant="ghost"
+            icon={<Plus size={18} />}
+            onClick={() => {
+              setForm(emptyForm);
+              setIsCustomCat(false);
+              setImageError("");
+              setFormError("");
+              setIsModalOpen(true);
+            }}
+            type="button"
+          >
+            New Product
+          </Button>
+        )}
       </header>
+
+      {/* Admin Search & Category Filter Control Bar */}
+      <div className="admin-filter-toolbar">
+        <div className="product-search-wrapper admin-search-wrapper">
+          <Search size={18} className="search-icon" />
+          <input
+            type="text"
+            className="product-search-input"
+            placeholder="Filter products by name or category..."
+            value={adminSearch}
+            onChange={(e) => setAdminSearch(e.target.value)}
+          />
+          {adminSearch && (
+            <button
+              type="button"
+              className="search-clear-btn"
+              onClick={() => setAdminSearch("")}
+              aria-label="Clear search"
+            >
+              <X size={16} />
+            </button>
+          )}
+        </div>
+
+        <div className="admin-category-filter">
+          <label htmlFor="admin-cat-select" className="filter-label">Category:</label>
+          <select
+            id="admin-cat-select"
+            className="admin-select"
+            value={adminCategory}
+            onChange={(e) => setAdminCategory(e.target.value)}
+          >
+            <option value="All">All Categories</option>
+            {STANDARD_CATEGORIES.map((cat) => (
+              <option key={cat} value={cat}>
+                {cat}
+              </option>
+            ))}
+          </select>
+        </div>
+      </div>
 
       <div className="table-card">
         <table className="data-table">
@@ -135,14 +225,16 @@ function ProductsPage() {
             </tr>
           </thead>
           <tbody>
-            {products.length === 0 ? (
+            {filteredProducts.length === 0 ? (
               <tr>
                 <td colSpan={7} className="table-empty">
-                  No products yet. Click &quot;New Product&quot; to add one.
+                  {products.length === 0
+                    ? 'No products yet. Click "New Product" to add one.'
+                    : "No products match current search or category filter."}
                 </td>
               </tr>
             ) : (
-              products.map((product) => (
+              filteredProducts.map((product) => (
                 <tr key={product.id}>
                   <td>
                     <div className="table-thumb">
@@ -154,48 +246,60 @@ function ProductsPage() {
                     </div>
                   </td>
                   <td>{product.name}</td>
-                  <td>{product.category}</td>
+                  <td>
+                    <span className="category-badge">{product.category}</span>
+                  </td>
                   <td>₹{product.price.toLocaleString("en-IN")}</td>
                   <td>{product.stock}</td>
                   <td>{product.status}</td>
                   <td>
                     <div className="row-actions">
-                      <button
-                        type="button"
-                        className="mini-button"
-                        onClick={() => {
-                          setForm({
-                            id: product.id,
-                            name: product.name,
-                            category: product.category,
-                            price: product.price,
-                            original_price: product.original_price || 0,
-                            sizes: product.sizes || "6, 7, 8, 9, 10",
-                            colors: product.colors || "Black, Blue, Navy",
-                            gallery_images: product.gallery_images || "",
-                            stock: product.stock,
-                            rating: product.rating,
-                            status: product.status,
-                            description: product.description,
-                            image_url: product.image_url,
-                          });
-                          setImageError("");
-                          setFormError("");
-                          setIsModalOpen(true);
-                        }}
-                      >
-                        <Pencil size={14} />
-                      </button>
-                      <button
-                        type="button"
-                        className="mini-button danger"
-                        onClick={async () => {
-                          await removeProduct(product.id);
-                          await refresh();
-                        }}
-                      >
-                        <Trash2 size={14} />
-                      </button>
+                      {canUpdate && (
+                        <button
+                          type="button"
+                          className="mini-button"
+                          onClick={() => {
+                            const isKnown = STANDARD_CATEGORIES.includes(product.category);
+                            setForm({
+                              id: product.id,
+                              name: product.name,
+                              category: isKnown ? product.category : "Other",
+                              customCategory: isKnown ? "" : product.category,
+                              price: product.price,
+                              original_price: product.original_price || 0,
+                              sizes: product.sizes || "6, 7, 8, 9, 10",
+                              colors: product.colors || "Black, Blue, Navy",
+                              gallery_images: product.gallery_images || "",
+                              stock: product.stock,
+                              rating: product.rating,
+                              status: product.status,
+                              description: product.description,
+                              image_url: product.image_url,
+                            });
+                            setIsCustomCat(!isKnown);
+                            setImageError("");
+                            setFormError("");
+                            setIsModalOpen(true);
+                          }}
+                        >
+                          <Pencil size={14} />
+                        </button>
+                      )}
+                      {canDelete && (
+                        <button
+                          type="button"
+                          className="mini-button danger"
+                          onClick={async () => {
+                            await removeProduct(product.id);
+                            await refresh();
+                          }}
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      )}
+                      {!canUpdate && !canDelete && (
+                        <span style={{ fontSize: "0.8rem", color: "#888" }}>Read Only</span>
+                      )}
                     </div>
                   </td>
                 </tr>
@@ -204,6 +308,7 @@ function ProductsPage() {
           </tbody>
         </table>
       </div>
+
 
       {isModalOpen && (
         <div className="modal-overlay" onClick={closeModal}>
@@ -261,12 +366,46 @@ function ProductsPage() {
                   onChange={(event) => setForm({ ...form, name: event.target.value })}
                   placeholder="Product name"
                 />
-                <TextField
-                  label="Category"
-                  value={form.category}
-                  onChange={(event) => setForm({ ...form, category: event.target.value })}
-                  placeholder="Category e.g. Shoes, Jewelry"
-                />
+
+                <div className="form-field-custom">
+                  <label className="field-label" htmlFor="modal-cat-select">
+                    Category
+                  </label>
+                  <select
+                    id="modal-cat-select"
+                    className="modal-select-input"
+                    value={isCustomCat ? "Other" : form.category}
+                    onChange={(event) => {
+                      const val = event.target.value;
+                      if (val === "Other") {
+                        setIsCustomCat(true);
+                        setForm({ ...form, category: "Other" });
+                      } else {
+                        setIsCustomCat(false);
+                        setForm({ ...form, category: val });
+                      }
+                    }}
+                  >
+                    {STANDARD_CATEGORIES.map((cat) => (
+                      <option key={cat} value={cat}>
+                        {cat}
+                      </option>
+                    ))}
+                    <option value="Other">Other (Custom)</option>
+                  </select>
+                </div>
+
+                {isCustomCat && (
+                  <TextField
+                    label="Custom Category Name"
+                    value={form.customCategory}
+                    onChange={(event) =>
+                      setForm({ ...form, customCategory: event.target.value })
+                    }
+                    placeholder="e.g. Accessories, Cosmetics"
+                  />
+                )}
+
                 <TextField
                   label="Selling Price (₹)"
                   type="number"
@@ -330,3 +469,4 @@ function ProductsPage() {
 }
 
 export default ProductsPage;
+

@@ -2,7 +2,7 @@ import { Shield, Eye, EyeOff } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
-import loginBanner from "../../assets/login_banner.png";
+import AuthBannerSlider from "../../components/auth/AuthBannerSlider";
 
 function SignupPage() {
   const { signupAsUser, submitting, error, message, clearFeedback } = useAuth();
@@ -21,98 +21,8 @@ function SignupPage() {
         background: "#ffffff",
       }}
     >
-      {/* Left Full-Height Banner Column */}
-      <div
-        style={{
-          flex: "1 1 50%",
-          position: "relative",
-          minHeight: "100vh",
-          display: "flex",
-          flexDirection: "column",
-          justifyContent: "space-between",
-          padding: "48px",
-          background: "#18211d",
-        }}
-      >
-        {/* Background Banner Image */}
-        <img
-          src={loginBanner}
-          alt="Luxury Jewelry"
-          style={{
-            position: "absolute",
-            inset: 0,
-            width: "100%",
-            height: "100%",
-            objectFit: "cover",
-            opacity: 0.88,
-          }}
-        />
-
-        {/* Gradient Overlay */}
-        <div
-          style={{
-            position: "absolute",
-            inset: 0,
-            background:
-              "linear-gradient(180deg, rgba(0,0,0,0.45) 0%, rgba(0,0,0,0.15) 50%, rgba(0,0,0,0.75) 100%)",
-          }}
-        />
-
-        {/* Top Brand Logo */}
-        <div
-          style={{
-            position: "relative",
-            zIndex: 2,
-            display: "flex",
-            alignItems: "center",
-            gap: "12px",
-            color: "#ffffff",
-          }}
-        >
-          <div
-            style={{
-              width: "44px",
-              height: "44px",
-              borderRadius: "12px",
-              background: "rgba(255, 255, 255, 0.2)",
-              backdropFilter: "blur(10px)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              border: "1px solid rgba(255, 255, 255, 0.3)",
-            }}
-          >
-            <Shield size={24} color="#ffffff" />
-          </div>
-          <span style={{ fontSize: "1.4rem", fontWeight: "800", letterSpacing: "1.5px" }}>GAHENA</span>
-        </div>
-
-        {/* Bottom Banner Title */}
-        <div
-          style={{
-            position: "relative",
-            zIndex: 2,
-            color: "#ffffff",
-            maxWidth: "520px",
-          }}
-        >
-          <p
-            style={{
-              fontSize: "0.85rem",
-              textTransform: "uppercase",
-              letterSpacing: "2.5px",
-              color: "#e0e8e3",
-              fontWeight: "600",
-              marginBottom: "8px",
-            }}
-          >
-            JOIN OUR COMMUNITY
-          </p>
-          <h2 style={{ fontSize: "2.4rem", fontWeight: "800", lineHeight: "1.2", margin: 0 }}>
-            Create Your Account & Explore Premium Jewelry
-          </h2>
-        </div>
-      </div>
+      {/* Left Full-Height Banner Slider Column */}
+      <AuthBannerSlider />
 
       {/* Right Full-Height Form Column */}
       <div

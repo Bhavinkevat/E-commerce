@@ -66,6 +66,23 @@ def send_otp_email(to_email: str, otp: str):
         print(f"\n!!! Background SMTP Send Error for {to_email}: {str(e)} !!!\n")
 
 
+def build_user_read(user: User, db: Session) -> UserRead:
+    from app.services.role import get_user_permissions
+    perms = get_user_permissions(db, user)
+    return UserRead(
+        id=user.id,
+        name=user.name,
+        first_name=user.first_name,
+        last_name=user.last_name,
+        email=user.email,
+        phone=user.phone,
+        address=user.address,
+        role=user.role,
+        created_at=user.created_at,
+        permissions=perms,
+    )
+
+
 @router.post("/signup", response_model=TokenResponse)
 def signup(payload: UserCreate, db: Session = Depends(get_db)):
     existing_user = get_user_by_email(db, payload.email)
@@ -78,7 +95,7 @@ def signup(payload: UserCreate, db: Session = Depends(get_db)):
     payload.role = "user"
     user = create_user(db, payload)
     token = create_access_token(subject=user.email)
-    return TokenResponse(access_token=token, user=user)
+    return TokenResponse(access_token=token, user=build_user_read(user, db))
 
 
 @router.post("/login", response_model=TokenResponse)
@@ -91,7 +108,8 @@ def login(payload: UserLogin, db: Session = Depends(get_db)):
         )
 
     token = create_access_token(subject=user.email)
-    return TokenResponse(access_token=token, user=user)
+    return TokenResponse(access_token=token, user=build_user_read(user, db))
+
 
 
 @router.post("/forgot-password")
@@ -210,8 +228,9 @@ def reset_password_with_otp(
 
 
 @router.get("/me", response_model=UserRead)
-def me(current_user: User = Depends(get_current_user)):
-    return current_user
+def me(current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    return build_user_read(current_user, db)
+
 
 
 @router.put("/profile", response_model=UserRead)

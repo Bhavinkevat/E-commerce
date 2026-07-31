@@ -199,3 +199,53 @@ def ensure_default_admin() -> None:
     finally:
         db.close()
 
+
+def ensure_default_roles() -> None:
+    db = SessionLocal()
+    try:
+        roles_count = db.execute(text("SELECT COUNT(*) FROM roles")).scalar()
+        if roles_count == 0:
+            db.execute(
+                text(
+                    "INSERT INTO roles (name, description) VALUES ('Super Admin', 'Full system access and privileges')"
+                )
+            )
+            db.execute(
+                text(
+                    "INSERT INTO roles (name, description) VALUES ('Manager', 'Store operational management')"
+                )
+            )
+            db.commit()
+            
+            # Seed permissions
+            admin_role = db.execute(text("SELECT id FROM roles WHERE name = 'Super Admin' LIMIT 1")).first()
+            manager_role = db.execute(text("SELECT id FROM roles WHERE name = 'Manager' LIMIT 1")).first()
+            
+            modules = ["Products", "Coupons", "Orders", "Customers", "Analytics", "Role & Permissions"]
+            
+            if admin_role:
+                for mod in modules:
+                    db.execute(
+                        text(
+                            "INSERT INTO role_permissions (role_id, module_name, can_view, can_create, can_update, can_delete) "
+                            "VALUES (:rid, :mod, 1, 1, 1, 1)"
+                        ),
+                        {"rid": admin_role[0], "mod": mod}
+                    )
+            if manager_role:
+                for mod in modules:
+                    db.execute(
+                        text(
+                            "INSERT INTO role_permissions (role_id, module_name, can_view, can_create, can_update, can_delete) "
+                            "VALUES (:rid, :mod, 1, 1, 1, 0)"
+                        ),
+                        {"rid": manager_role[0], "mod": mod}
+                    )
+            db.commit()
+            print("Default roles & permissions initialized.")
+    except Exception as e:
+        print(f"Role seed note: {e}")
+    finally:
+        db.close()
+
+

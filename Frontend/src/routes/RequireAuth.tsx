@@ -21,9 +21,18 @@ function RequireAuth({ allowedRoles }: RequireAuthProps) {
     return <Navigate to="/login" replace state={{ from: location }} />;
   }
 
-  if (allowedRoles && !allowedRoles.includes(user.role)) {
-    return <Navigate to={user.role === "admin" ? "/admin" : "/app"} replace />;
+  if (allowedRoles) {
+    const isStaffRoute = allowedRoles.includes("admin");
+    const isUserStaff = user.role !== "user";
+
+    if (isStaffRoute && !isUserStaff) {
+      return <Navigate to="/app" replace />;
+    }
+    if (!isStaffRoute && isUserStaff) {
+      return <Navigate to="/admin" replace />;
+    }
   }
+
 
   return <Outlet />;
 }

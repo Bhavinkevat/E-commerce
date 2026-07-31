@@ -65,6 +65,13 @@ class ForgotPasswordReset(BaseModel):
 
 
 
+class PermissionItem(BaseModel):
+    can_view: bool = True
+    can_create: bool = False
+    can_update: bool = False
+    can_delete: bool = False
+
+
 class UserRead(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
@@ -77,9 +84,11 @@ class UserRead(BaseModel):
     address: str | None = None
     role: str
     created_at: datetime
+    permissions: dict[str, PermissionItem] = {}
 
 
 class TokenResponse(BaseModel):
     access_token: str
     token_type: str = "bearer"
     user: UserRead
+

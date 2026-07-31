@@ -12,12 +12,14 @@ from app.database import (
     ensure_user_otp_columns,
     ensure_default_coupons,
     ensure_default_admin,
+    ensure_default_roles,
 )
 from app.routers.admin import router as admin_router
 from app.routers.cart import router as cart_router
 from app.routers.coupon import router as coupon_router
 from app.routers.order import router as order_router
 from app.routers.product import router as product_router
+from app.routers.role import router as role_router
 from app.routers.user import router as user_router
 from app.routers.wishlist import router as wishlist_router
 
@@ -44,6 +46,7 @@ def startup_event():
     ensure_user_otp_columns()
     ensure_default_coupons()
     ensure_default_admin()
+    ensure_default_roles()
 
 
 app.include_router(user_router)
@@ -53,6 +56,8 @@ app.include_router(wishlist_router)
 app.include_router(order_router)
 app.include_router(admin_router)
 app.include_router(coupon_router)
+app.include_router(role_router)
+
 
 
 @app.get("/")
