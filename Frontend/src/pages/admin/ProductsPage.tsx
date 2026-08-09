@@ -6,13 +6,30 @@ import { listProducts, removeProduct, saveProduct } from "../../apis/admin";
 import type { Product } from "../../types/catalog";
 import { useAuth } from "../../context/AuthContext";
 
-const STANDARD_CATEGORIES = [
-  "Men's Clothes",
-  "Women's Clothes",
-  "Men's Footwear",
-  "Women's Footwear",
-  "Jewellery",
+const CATEGORY_GROUPS = [
+  {
+    label: "Men's Wear",
+    categories: ["Men's Shirts", "Men's T-Shirts", "Men's Pants", "Men's Trackpants", "Men's Clothes"],
+  },
+  {
+    label: "Women's Wear",
+    categories: ["Women's Tops", "Women's Kurtis", "Women's Jeans", "Women's Clothes"],
+  },
+  {
+    label: "Kids' Wear",
+    categories: ["Kids' Wear"],
+  },
+  {
+    label: "Jewellery",
+    categories: ["Jewellery"],
+  },
+  {
+    label: "Footwear",
+    categories: ["Men's Footwear", "Women's Footwear", "Kids' Footwear"],
+  },
 ];
+
+const STANDARD_CATEGORIES = CATEGORY_GROUPS.flatMap((g) => g.categories);
 
 const emptyForm = {
   id: undefined as number | undefined,
@@ -386,10 +403,14 @@ function ProductsPage() {
                       }
                     }}
                   >
-                    {STANDARD_CATEGORIES.map((cat) => (
-                      <option key={cat} value={cat}>
-                        {cat}
-                      </option>
+                    {CATEGORY_GROUPS.map((group) => (
+                      <optgroup key={group.label} label={group.label}>
+                        {group.categories.map((cat) => (
+                          <option key={cat} value={cat}>
+                            {cat}
+                          </option>
+                        ))}
+                      </optgroup>
                     ))}
                     <option value="Other">Other (Custom)</option>
                   </select>

@@ -49,7 +49,7 @@ export const AuthBannerSlider: React.FC = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
   const [direction, setDirection] = useState<"left" | "right">("right");
-  const autoPlayTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const autoPlayTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const prevSlide = () => {
     setDirection("left");
