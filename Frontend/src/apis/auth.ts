@@ -10,7 +10,13 @@ import type {
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
 
 async function requestJson<T>(path: string, init: RequestInit): Promise<T> {
-  const response = await fetch(`${API_URL}${path}`, init);
+  const response = await fetch(`${API_URL}${path}`, {
+    ...init,
+    headers: {
+      "ngrok-skip-browser-warning": "true",
+      ...(init.headers || {}),
+    },
+  });
   const data = await response.json();
 
   if (!response.ok) {
