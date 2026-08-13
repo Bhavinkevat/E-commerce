@@ -128,50 +128,46 @@ function LoginPage() {
   const isSubmitting = showForgotPassword ? resetSubmitting : submitting;
 
   return (
-    <div
-      style={{
-        minHeight: "100vh",
-        width: "100vw",
-        display: "flex",
-        overflow: "hidden",
-        background: "#ffffff",
-      }}
-    >
+    <div className="auth-page-container">
       {/* Left Full-Height Banner Slider Column */}
       <AuthBannerSlider />
 
-      {/* Right Full-Height Form Column */}
-      <div
-        style={{
-          flex: "1 1 50%",
-          minHeight: "100vh",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          padding: "40px 60px",
-          background: "#ffffff",
-          overflowY: "auto",
-        }}
-      >
-        <div
-          style={{
-            width: "100%",
-            maxWidth: "460px",
-          }}
-        >
-          <div style={{ marginBottom: "32px" }}>
-            <h1
+      {/* Right Form Column */}
+      <div className="auth-form-column">
+        <div className="auth-form-wrapper">
+          {/* Mobile Brand Header */}
+          <div className="auth-mobile-header">
+            <div
               style={{
-                fontSize: "2.4rem",
-                fontWeight: "800",
-                color: "#18211d",
-                margin: "0 0 10px 0",
-                letterSpacing: "-0.5px",
+                width: "42px",
+                height: "42px",
+                borderRadius: "12px",
+                background: "#1f6f59",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                boxShadow: "0 4px 12px rgba(31, 111, 89, 0.3)",
               }}
             >
+              <Shield size={22} color="#ffffff" />
+            </div>
+            <span
+              style={{
+                fontSize: "1.35rem",
+                fontWeight: "800",
+                letterSpacing: "1.5px",
+                color: "#18211d",
+              }}
+            >
+              GAHENA
+            </span>
+          </div>
+
+          <div style={{ marginBottom: "28px" }}>
+            <h1 className="auth-title">
               {showForgotPassword ? "Reset Password" : "Welcome Back!"}
             </h1>
-            <p style={{ color: "#718277", fontSize: "0.95rem", lineHeight: "1.5", margin: 0 }}>
+            <p className="auth-subtitle">
               {showForgotPassword
                 ? otpStep === 1
                   ? "Enter your email address to receive a verification OTP code."
@@ -370,15 +366,7 @@ function LoginPage() {
 
             {/* Remember Me & Forgot Password Row */}
             {!showForgotPassword && (
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "space-between",
-                  fontSize: "0.88rem",
-                  marginTop: "-4px",
-                }}
-              >
+              <div className="auth-remember-row">
                 <label style={{ display: "flex", alignItems: "center", gap: "8px", color: "#65756c", cursor: "pointer" }}>
                   <input
                     type="checkbox"
@@ -440,15 +428,7 @@ function LoginPage() {
             )}
 
             {/* Bottom Action Footer Row */}
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-                marginTop: "12px",
-                gap: "12px",
-              }}
-            >
+            <div className="auth-footer-row">
               {showForgotPassword ? (
                 <button
                   type="button"
@@ -480,18 +460,7 @@ function LoginPage() {
               <button
                 type="submit"
                 disabled={isSubmitting}
-                style={{
-                  padding: "14px 36px",
-                  borderRadius: "12px",
-                  background: "linear-gradient(135deg, #1f6f59 0%, #165242 100%)",
-                  color: "#ffffff",
-                  border: "none",
-                  fontWeight: "700",
-                  fontSize: "1rem",
-                  cursor: isSubmitting ? "wait" : "pointer",
-                  boxShadow: "0 6px 16px rgba(31, 111, 89, 0.28)",
-                  transition: "all 0.2s ease",
-                }}
+                className="auth-submit-btn"
               >
                 {isSubmitting
                   ? "Please wait..."

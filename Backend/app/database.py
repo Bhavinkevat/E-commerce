@@ -6,31 +6,49 @@ from app.core.config import settings
 
 
 def ensure_database_exists() -> None:
-    admin_url = URL.create(
-        drivername="mysql+pymysql",
-        username=settings.db_user,
-        password=settings.db_password or None,
-        host=settings.db_host,
-        port=settings.db_port,
-        database="mysql",
-    )
-    admin_engine = create_engine(admin_url, pool_pre_ping=True)
-
-    quoted_name = settings.db_name.replace("`", "``")
-    with admin_engine.connect() as connection:
-        connection.execute(
-            text(
-                f"CREATE DATABASE IF NOT EXISTS `{quoted_name}` "
-                "CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci"
-            )
+    try:
+        admin_url = URL.create(
+            drivername="mysql+pymysql",
+            username=settings.db_user,
+            password=settings.db_password or None,
+            host=settings.db_host,
+            port=settings.db_port,
+            database="mysql",
         )
+        admin_engine = create_engine(admin_url, pool_pre_ping=True)
 
-    admin_engine.dispose()
+        quoted_name = settings.db_name.replace("`", "``")
+        with admin_engine.connect() as connection:
+            connection.execute(
+                text(
+                    f"CREATE DATABASE IF NOT EXISTS `{quoted_name}` "
+                    "CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci"
+                )
+            )
+
+        admin_engine.dispose()
+    except Exception as e:
+        print(f"Skipping database auto-creation (cloud DB or restricted user): {e}")
 
 
-ensure_database_exists()
+try:
+    ensure_database_exists()
+except Exception as e:
+    print(f"Skipping database creation check: {e}")
 
-engine = create_engine(settings.database_url, pool_pre_ping=True)
+db_url = settings.database_url
+connect_args = {}
+
+if "ssl=true" in db_url.lower() or "aivencloud.com" in db_url.lower():
+    db_url = db_url.replace("?ssl=true", "").replace("&ssl=true", "").replace("?SSL=true", "").replace("&SSL=true", "")
+    connect_args["ssl"] = {}
+
+engine = create_engine(
+    db_url,
+    connect_args=connect_args,
+    pool_pre_ping=True,
+    pool_recycle=3600,
+)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 

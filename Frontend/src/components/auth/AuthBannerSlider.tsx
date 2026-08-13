@@ -87,10 +87,10 @@ export const AuthBannerSlider: React.FC = () => {
 
   return (
     <div
+      className="auth-banner-column"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       style={{
-        flex: "1 1 50%",
         position: "relative",
         minHeight: "100vh",
         display: "flex",

@@ -17,7 +17,6 @@ async function requestJson<T>(path: string, init?: RequestInit): Promise<T> {
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${token()}`,
-      "ngrok-skip-browser-warning": "true",
       ...(init?.headers || {}),
     },
   });
