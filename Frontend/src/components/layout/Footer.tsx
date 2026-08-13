@@ -1,5 +1,6 @@
 import { Heart, Mail, Phone, MapPin, ShieldCheck, Truck, RotateCcw, CreditCard } from "lucide-react";
 import { Link } from "react-router-dom";
+import { BrandLogo } from "../common/BrandLogo";
 
 function Footer() {
   return (
@@ -30,10 +31,7 @@ function Footer() {
 
       <div className="footer-main-grid">
         <div className="footer-col brand-col">
-          <div className="footer-brand">
-            <span className="footer-brand-logo">💎</span>
-            <span className="footer-brand-name">GAHENA</span>
-          </div>
+          <BrandLogo size="medium" />
           <p className="footer-about">
             Gahena is your premier luxury destination for fine jewelry and fashion collections. Crafted with perfection, elegance, and timeless grace.
           </p>

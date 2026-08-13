@@ -66,6 +66,89 @@ def send_otp_email(to_email: str, otp: str):
         print(f"\n!!! Background SMTP Send Error for {to_email}: {str(e)} !!!\n")
 
 
+def send_welcome_email(to_email: str, user_name: str):
+    if not (settings.smtp_host and settings.smtp_user):
+        return
+    try:
+        msg = MIMEMultipart("alternative")
+        msg["Subject"] = "Welcome to GAHENA! 💎"
+        msg["From"] = settings.smtp_from or settings.smtp_user
+        msg["To"] = to_email
+
+        text_content = f"""Welcome to GAHENA! 💎
+
+Dear {user_name},
+
+Thank you for joining GAHENA — where elegance meets timeless beauty. ✨
+
+Your account has been successfully created, and we’re delighted to have you with us.
+
+Discover beautiful jewellery, explore timeless designs, and find something that perfectly matches your style and your story.
+
+✨ Your GAHENA journey starts here.
+
+We look forward to being a part of your special moments.
+
+With love,
+Team GAHENA💛
+Elegance. Tradition. You."""
+
+        html_content = f"""
+        <div style="font-family: 'Georgia', 'Arial', sans-serif; max-width: 600px; margin: 0 auto; padding: 32px; background-color: #090a0e; color: #ffffff; border: 1px solid #d4af37; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+            <div style="text-align: center; margin-bottom: 24px; border-bottom: 1px solid rgba(212, 175, 55, 0.3); padding-bottom: 20px;">
+                <h1 style="color: #f3e5ab; font-size: 28px; letter-spacing: 2px; margin: 0;">GAHENA</h1>
+                <p style="color: #d4af37; font-size: 11px; letter-spacing: 3px; margin-top: 4px; text-transform: uppercase;">Luxury E-Commerce</p>
+            </div>
+            
+            <h2 style="color: #f5d77f; font-size: 22px; margin-bottom: 16px;">Welcome to GAHENA! 💎</h2>
+            
+            <p style="font-size: 16px; color: #ffffff; line-height: 1.6;">Dear <strong>{user_name}</strong>,</p>
+            
+            <p style="font-size: 15px; color: #e2e8f0; line-height: 1.6;">
+                Thank you for joining <strong>GAHENA</strong> — where elegance meets timeless beauty. ✨
+            </p>
+            
+            <p style="font-size: 15px; color: #e2e8f0; line-height: 1.6;">
+                Your account has been successfully created, and we’re delighted to have you with us.
+            </p>
+            
+            <p style="font-size: 15px; color: #e2e8f0; line-height: 1.6;">
+                Discover beautiful jewellery, explore timeless designs, and find something that perfectly matches your style and your story.
+            </p>
+            
+            <div style="background: linear-gradient(135deg, rgba(212, 175, 55, 0.15) 0%, rgba(170, 124, 17, 0.05) 100%); border-left: 4px solid #d4af37; padding: 16px 20px; border-radius: 8px; margin: 24px 0;">
+                <p style="font-size: 16px; font-weight: bold; color: #f3e5ab; margin: 0;">
+                    ✨ Your GAHENA journey starts here.
+                </p>
+            </div>
+            
+            <p style="font-size: 15px; color: #e2e8f0; line-height: 1.6;">
+                We look forward to being a part of your special moments.
+            </p>
+            
+            <div style="margin-top: 32px; border-top: 1px solid rgba(212, 175, 55, 0.3); padding-top: 20px; font-size: 15px; color: #f3e5ab;">
+                <p style="margin: 0; font-weight: bold;">With love,</p>
+                <p style="margin: 4px 0 0; font-size: 17px; color: #f5d77f; font-weight: bold;">Team GAHENA 💛</p>
+                <p style="margin: 4px 0 0; font-size: 12px; color: #d4af37; letter-spacing: 1.5px; text-transform: uppercase;">Elegance. Tradition. You.</p>
+            </div>
+        </div>
+        """
+
+        msg.attach(MIMEText(text_content, "plain"))
+        msg.attach(MIMEText(html_content, "html"))
+
+        with smtplib.SMTP(settings.smtp_host, settings.smtp_port, timeout=5) as server:
+            if settings.smtp_port == 587:
+                server.starttls()
+            if settings.smtp_user and settings.smtp_password:
+                clean_password = settings.smtp_password.replace(" ", "").strip()
+                server.login(settings.smtp_user, clean_password)
+            server.sendmail(msg["From"], [to_email], msg.as_string())
+            print(f"--> Welcome email sent successfully to {to_email}")
+    except Exception as e:
+        print(f"\n!!! Background SMTP Welcome Email Error for {to_email}: {str(e)} !!!\n")
+
+
 def build_user_read(user: User, db: Session) -> UserRead:
     from app.services.role import get_user_permissions
     perms = get_user_permissions(db, user)
@@ -84,7 +167,7 @@ def build_user_read(user: User, db: Session) -> UserRead:
 
 
 @router.post("/signup", response_model=TokenResponse)
-def signup(payload: UserCreate, db: Session = Depends(get_db)):
+def signup(payload: UserCreate, background_tasks: BackgroundTasks, db: Session = Depends(get_db)):
     existing_user = get_user_by_email(db, payload.email)
     if existing_user:
         raise HTTPException(
@@ -94,6 +177,10 @@ def signup(payload: UserCreate, db: Session = Depends(get_db)):
 
     payload.role = "user"
     user = create_user(db, payload)
+    
+    # Send Welcome Email in background task
+    background_tasks.add_task(send_welcome_email, user.email, user.name)
+
     token = create_access_token(subject=user.email)
     return TokenResponse(access_token=token, user=build_user_read(user, db))
 

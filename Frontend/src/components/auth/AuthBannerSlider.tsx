@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { ChevronLeft, ChevronRight, Shield, Sparkles } from "lucide-react";
+import { BrandLogo } from "../common/BrandLogo";
 
 import banner1 from "../../assets/auth_banner_1.png";
 import banner2 from "../../assets/auth_banner_2.png";
@@ -158,43 +159,7 @@ export const AuthBannerSlider: React.FC = () => {
           justifyContent: "space-between",
         }}
       >
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "12px",
-            color: "#ffffff",
-          }}
-        >
-          <div
-            style={{
-              width: "46px",
-              height: "46px",
-              borderRadius: "14px",
-              background: "rgba(255, 255, 255, 0.15)",
-              backdropFilter: "blur(12px)",
-              WebkitBackdropFilter: "blur(12px)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              border: "1px solid rgba(255, 255, 255, 0.3)",
-              boxShadow: "0 8px 24px rgba(0,0,0,0.25)",
-            }}
-          >
-            <Shield size={24} color="#ffffff" />
-          </div>
-          <span
-            style={{
-              fontSize: "1.45rem",
-              fontWeight: "800",
-              letterSpacing: "2px",
-              color: "#ffffff",
-              textShadow: "0 2px 8px rgba(0,0,0,0.6)",
-            }}
-          >
-            GAHENA
-          </span>
-        </div>
+        <BrandLogo size="large" />
 
         {/* Badge Indicator */}
         <div
@@ -246,7 +211,7 @@ export const AuthBannerSlider: React.FC = () => {
           boxShadow: "0 8px 24px rgba(0, 0, 0, 0.35)",
         }}
         onMouseEnter={(e) => {
-          e.currentTarget.style.background = "rgba(31, 111, 89, 0.85)";
+          e.currentTarget.style.background = "rgba(212, 175, 55, 0.85)";
           e.currentTarget.style.transform = "translateY(-50%) scale(1.1)";
           e.currentTarget.style.borderColor = "rgba(255, 255, 255, 0.6)";
         }}
@@ -286,7 +251,7 @@ export const AuthBannerSlider: React.FC = () => {
           boxShadow: "0 8px 24px rgba(0, 0, 0, 0.35)",
         }}
         onMouseEnter={(e) => {
-          e.currentTarget.style.background = "rgba(31, 111, 89, 0.85)";
+          e.currentTarget.style.background = "rgba(212, 175, 55, 0.85)";
           e.currentTarget.style.transform = "translateY(-50%) scale(1.1)";
           e.currentTarget.style.borderColor = "rgba(255, 255, 255, 0.6)";
         }}
@@ -317,7 +282,7 @@ export const AuthBannerSlider: React.FC = () => {
               fontSize: "0.85rem",
               textTransform: "uppercase",
               letterSpacing: "3px",
-              color: "#6ee7b7",
+              color: "#f5d77f",
               fontWeight: "700",
               marginBottom: "8px",
               display: "flex",
@@ -330,7 +295,7 @@ export const AuthBannerSlider: React.FC = () => {
                 display: "inline-block",
                 width: "24px",
                 height: "2px",
-                background: "#6ee7b7",
+                background: "#d4af37",
                 borderRadius: "2px",
               }}
             />
@@ -382,10 +347,10 @@ export const AuthBannerSlider: React.FC = () => {
                     width: active ? "32px" : "10px",
                     borderRadius: "6px",
                     background: active
-                      ? "linear-gradient(90deg, #6ee7b7 0%, #34d399 100%)"
+                      ? "linear-gradient(90deg, #f5d77f 0%, #d4af37 100%)"
                       : "rgba(255, 255, 255, 0.35)",
                     transition: "all 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
-                    boxShadow: active ? "0 0 10px rgba(110, 231, 183, 0.6)" : "none",
+                    boxShadow: active ? "0 0 10px rgba(212, 175, 55, 0.6)" : "none",
                   }}
                 />
               </button>

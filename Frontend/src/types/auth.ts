@@ -15,6 +15,7 @@ export interface User {
   email: string;
   phone?: string;
   address?: string;
+  avatar_url?: string;
   role: string;
   created_at: string;
   permissions?: Record<string, PermissionItem>;
@@ -34,6 +35,7 @@ export interface LoginPayload {
 
 export interface SignupPayload extends LoginPayload {
   name: string;
+  phone: string;
   role: "admin" | "user";
 }
 

@@ -42,6 +42,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       try {
         const currentUser = await getCurrentUser(token);
+        const savedAvatar = localStorage.getItem(`gahena_avatar_${currentUser.id}`);
+        if (savedAvatar) {
+          currentUser.avatar_url = savedAvatar;
+        }
         setUser(currentUser);
       } catch {
         localStorage.removeItem("gahena_token");
@@ -71,6 +75,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const response = await action();
       localStorage.setItem("gahena_token", response.access_token);
       setToken(response.access_token);
+      
+      const savedAvatar = localStorage.getItem(`gahena_avatar_${response.user.id}`);
+      if (savedAvatar) {
+        response.user.avatar_url = savedAvatar;
+      }
       setUser(response.user);
       setMessage(successMessage);
     } catch (err) {
@@ -85,7 +94,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const signupAsUser = async (payload: SignupPayload) => {
-    await runAuth(() => signup(payload), "Account created successfully");
+    await runAuth(() => signup(payload), "Account created! Welcome email has been sent to your inbox 💎");
   };
 
   const logout = () => {
@@ -97,6 +106,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const updateUser = (updatedUser: User) => {
+    if (updatedUser.avatar_url !== undefined) {
+      if (updatedUser.avatar_url) {
+        localStorage.setItem(`gahena_avatar_${updatedUser.id}`, updatedUser.avatar_url);
+      } else {
+        localStorage.removeItem(`gahena_avatar_${updatedUser.id}`);
+      }
+    } else {
+      const savedAvatar = localStorage.getItem(`gahena_avatar_${updatedUser.id}`);
+      if (savedAvatar) {
+        updatedUser.avatar_url = savedAvatar;
+      }
+    }
     setUser(updatedUser);
   };
 

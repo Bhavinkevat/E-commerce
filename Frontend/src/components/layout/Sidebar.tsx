@@ -1,6 +1,7 @@
 import { LogOut, Menu, Shield, type LucideIcon } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import type { User } from "../../types/auth";
+import { BrandLogo } from "../common/BrandLogo";
 
 export type SidebarItem = {
   label: string;
@@ -39,14 +40,7 @@ function Sidebar({
       </button>
 
       <div className="sidebar-brand">
-        <div className="brand-mark">
-          <Shield size={18} />
-        </div>
-        <div>
-          <p className="eyebrow">Gahena</p>
-          <strong>{title}</strong>
-          <span>{subtitle}</span>
-        </div>
+        <BrandLogo size="medium" />
       </div>
 
       <nav className="sidebar-nav">
@@ -70,7 +64,11 @@ function Sidebar({
 
       <div className="sidebar-footer">
         <div className="profile-chip">
-          <div className="avatar">{user.name.slice(0, 1).toUpperCase()}</div>
+          {user.avatar_url ? (
+            <img src={user.avatar_url} alt={user.name} className="sidebar-avatar-img" />
+          ) : (
+            <div className="avatar">{user.name.slice(0, 1).toUpperCase()}</div>
+          )}
           <div>
             <strong>{user.name}</strong>
             <span>{user.email}</span>

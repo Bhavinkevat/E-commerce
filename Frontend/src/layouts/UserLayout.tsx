@@ -19,6 +19,7 @@ import {
 import { useAuth } from "../context/AuthContext";
 import { getCart, getWishlist } from "../apis/user";
 import Footer from "../components/layout/Footer";
+import { BrandLogo } from "../components/common/BrandLogo";
 
 function UserLayout() {
   const { user, logout } = useAuth();
@@ -65,12 +66,8 @@ function UserLayout() {
       {/* 💎 Main Storefront Header */}
       <header className="storefront-navbar">
         <div className="navbar-container">
-          <Link to="/app" className="storefront-brand">
-            <span className="brand-logo-icon">💎</span>
-            <div className="brand-text-block">
-              <span className="brand-title">GAHENA</span>
-              <span className="brand-tagline">Luxury E-Commerce</span>
-            </div>
+          <Link to="/app">
+            <BrandLogo size="medium" />
           </Link>
 
           {/* Search Bar */}
@@ -107,16 +104,29 @@ function UserLayout() {
                 className="user-profile-btn"
                 onClick={() => setShowProfileMenu((prev) => !prev)}
               >
-                <UserCircle2 size={24} />
+                {user.avatar_url ? (
+                  <img src={user.avatar_url} alt={user.name} className="navbar-avatar-img" />
+                ) : (
+                  <UserCircle2 size={22} />
+                )}
                 <span className="user-name-label">{user.name.split(" ")[0]}</span>
                 <ChevronDown size={14} />
               </button>
 
               {showProfileMenu && (
                 <div className="profile-dropdown-menu" onClick={() => setShowProfileMenu(false)}>
-                  <div className="dropdown-user-info">
-                    <strong>{user.name}</strong>
-                    <p>{user.email}</p>
+                  <div className="dropdown-user-info" style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                    {user.avatar_url ? (
+                      <img src={user.avatar_url} alt={user.name} className="dropdown-avatar-img" />
+                    ) : (
+                      <div className="dropdown-avatar-placeholder">
+                        {user.name ? user.name[0].toUpperCase() : "U"}
+                      </div>
+                    )}
+                    <div>
+                      <strong>{user.name}</strong>
+                      <p>{user.email}</p>
+                    </div>
                   </div>
                   <hr className="dropdown-divider" />
                   <Link to="/app/profile" className="dropdown-item">

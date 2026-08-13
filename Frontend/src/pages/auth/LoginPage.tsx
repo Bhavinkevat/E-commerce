@@ -5,6 +5,7 @@ import { requestPasswordResetOtp, verifyPasswordResetOtp, resetPasswordWithOtp }
 import { useAuth } from "../../context/AuthContext";
 import { useToast } from "../../context/ToastContext";
 import AuthBannerSlider from "../../components/auth/AuthBannerSlider";
+import { BrandLogo } from "../../components/common/BrandLogo";
 
 function LoginPage() {
   const { loginAsUser, submitting, error, message, clearFeedback } = useAuth();
@@ -137,30 +138,7 @@ function LoginPage() {
         <div className="auth-form-wrapper">
           {/* Mobile Brand Header */}
           <div className="auth-mobile-header">
-            <div
-              style={{
-                width: "42px",
-                height: "42px",
-                borderRadius: "12px",
-                background: "#1f6f59",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                boxShadow: "0 4px 12px rgba(31, 111, 89, 0.3)",
-              }}
-            >
-              <Shield size={22} color="#ffffff" />
-            </div>
-            <span
-              style={{
-                fontSize: "1.35rem",
-                fontWeight: "800",
-                letterSpacing: "1.5px",
-                color: "#18211d",
-              }}
-            >
-              GAHENA
-            </span>
+            <BrandLogo size="medium" />
           </div>
 
           <div style={{ marginBottom: "28px" }}>

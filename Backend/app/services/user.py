@@ -13,6 +13,7 @@ def create_user(db: Session, payload: UserCreate) -> User:
     user = User(
         name=payload.name,
         email=payload.email,
+        phone=getattr(payload, "phone", None),
         hashed_password=hash_password(payload.password),
         role=payload.role,
     )

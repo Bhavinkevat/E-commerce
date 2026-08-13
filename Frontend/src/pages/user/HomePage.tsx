@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { 
-  ArrowRight, 
-  Sparkles, 
-  ShieldCheck, 
-  Truck, 
-  RotateCcw, 
+import {
+  ArrowRight,
+  Sparkles,
+  ShieldCheck,
+  Truck,
+  RotateCcw,
   Heart,
   Star,
   Tag,
@@ -79,10 +79,10 @@ function HomePage() {
   return (
     <div className="storefront-home-page">
       {/* 🌟 1. Full-Width Hero Slider Banner (Matching Screenshot 1 top) */}
-      <section className="storefront-hero-slider">
+      <section className="storefront-hero-slider animate-fade-in-up">
         <div className="hero-slide-main">
           <div className="hero-slide-copy">
-            <span className="hero-slide-badge">PARTY MODE: ON</span>
+            <span className="hero-slide-badge animate-gold-pulse">PARTY MODE: ON</span>
             <h1 className="hero-slide-headline">FESTIVE & PARTY WEAR COLLECTION</h1>
             <p className="hero-slide-price">Starting from <strong>₹499</strong></p>
             <button
@@ -93,7 +93,7 @@ function HomePage() {
               SHOP NOW <ArrowRight size={18} />
             </button>
           </div>
-          <div className="hero-slide-images">
+          {/* <div className="hero-slide-images animate-float">
             <img
               src="https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=600&q=80"
               alt="Party Wear High Fashion"
@@ -104,15 +104,15 @@ function HomePage() {
               alt="Party Collection Model"
               className="hero-slide-img-2"
             />
-          </div>
+          </div> */}
         </div>
       </section>
 
       {/* 🚚 2. Trust Strip & Coupon Banner (Matching Screenshot 1 middle) */}
-      <section className="storefront-trust-coupon-strip">
+      <section className="storefront-trust-coupon-strip animate-fade-in-up stagger-1">
         <div className="trust-info-bar">
           <div className="trust-info-item">
-            <Truck size={20} className="trust-icon" />
+            <Truck size={20} className="trust-icon animate-breath" />
             <div>
               <strong>Free Shipping</strong>
               <span>On all orders nationwide</span>
@@ -120,7 +120,7 @@ function HomePage() {
           </div>
           <div className="trust-divider" />
           <div className="trust-info-item">
-            <RotateCcw size={20} className="trust-icon" />
+            <RotateCcw size={20} className="trust-icon animate-breath" />
             <div>
               <strong>Easy Returns</strong>
               <span>No questions asked policy</span>
@@ -129,7 +129,7 @@ function HomePage() {
         </div>
 
         {/* Coupon Voucher Strip */}
-        <div className="coupon-voucher-banner">
+        <div className="coupon-voucher-banner animate-fade-in-scale">
           <div className="voucher-left">
             <Tag size={20} className="voucher-icon" />
             <div>
@@ -138,7 +138,7 @@ function HomePage() {
             </div>
           </div>
           <div className="voucher-right">
-            <div className="voucher-code-pill">
+            <div className="voucher-code-pill animate-gold-pulse">
               <span>Use Code:</span>
               <strong>WELCOME15</strong>
             </div>
@@ -157,7 +157,7 @@ function HomePage() {
       </section>
 
       {/* 🔴 3. Circular Category Avatars (Matching Screenshot 1 & 2) */}
-      <section className="storefront-section">
+      <section className="storefront-section animate-fade-in-up stagger-2">
         <div className="category-circle-grid">
           {CATEGORY_AVATARS.map((cat) => (
             <div
@@ -217,8 +217,20 @@ function HomePage() {
 
       {/* 💎 6. Handpicked Product Collection */}
       <section className="storefront-section">
-        <div className="section-title-row">
-          <h2>Featured Jewelry & Apparel</h2>
+        <div className="section-title-row" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
+          <div>
+            <h2>Featured Jewelry & Apparel</h2>
+            <p style={{ margin: "2px 0 0", color: "var(--text-muted, #94a3b8)", fontSize: "0.88rem" }}>
+              Explore our highest rated collections & new arrivals
+            </p>
+          </div>
+          <button
+            type="button"
+            className="view-all-link-btn"
+            onClick={() => navigate("/app/products")}
+          >
+            View all <ChevronRight size={18} />
+          </button>
         </div>
 
         <div className="catalog-grid">
@@ -281,11 +293,11 @@ function HomePage() {
 
       {/* ✨ 7. "For You" Section (Matching Screenshot 3 middle) */}
       <section className="storefront-section">
-        <div className="section-title-row">
+        {/* <div className="section-title-row">
           <h2>For You</h2>
-        </div>
+        </div> */}
 
-        <div className="for-you-grid">
+        {/* <div className="for-you-grid">
           {FOR_YOU_ITEMS.map((item) => (
             <div
               key={item.title}
@@ -299,7 +311,7 @@ function HomePage() {
               </div>
             </div>
           ))}
-        </div>
+        </div> */}
       </section>
     </div>
   );
